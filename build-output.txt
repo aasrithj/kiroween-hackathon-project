@@ -1,0 +1,49 @@
+﻿  Γû▓ Next.js 14.2.35
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully
+   Linting and checking validity of types ...
+node.exe : Failed to compile.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program 
+Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Failed to com 
+   pile.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+./src/audio/AudioManager.ts:139:37
+Type error: No overload matches this call.
+  Overload 1 of 2, '(destinationNode: AudioNode, output?: 
+number | undefined, input?: number | undefined): 
+AudioNode', gave the following error.
+    Argument of type 'GainNode | null' is not assignable 
+to parameter of type 'AudioNode'.
+      Type 'null' is not assignable to type 'AudioNode'.
+  Overload 2 of 2, '(destinationParam: AudioParam, 
+output?: number | undefined): void', gave the following 
+error.
+    Argument of type 'GainNode | null' is not assignable 
+to parameter of type 'AudioParam'.
+      Type 'null' is not assignable to type 'AudioParam'.
+
+[0m [90m 137 |[39m           gain[33m.[39mgain[33m.[
+39mlinearRampToValueAtTime([35m0.15[39m[33m,[39m 
+startTime [33m+[39m [35m0.02[39m)[33m;[39m[0m
+[0m [90m 138 |[39m           gain[33m.[39mgain[33m.[
+39mexponentialRampToValueAtTime([35m0.001[39m[33m,[39m 
+startTime [33m+[39m [35m2[39m)[33m;[39m[0m
+[0m[31m[1m>[22m[39m[90m 139 |[39m           osc[33m
+.[39mconnect(gain)[33m.[39mconnect([36mthis[39m[33m.
+[39mmasterGain)[33m;[39m[0m
+[0m [90m     |[39m                                     
+[31m[1m^[22m[39m[0m
+[0m [90m 140 |[39m           
+osc[33m.[39mstart(startTime)[33m;[39m[0m
+[0m [90m 141 |[39m           
+osc[33m.[39mstop(startTime [33m+[39m 
+[35m2[39m)[33m;[39m[0m
+[0m [90m 142 |[39m         })[33m;[39m[0m
+Next.js build worker exited with code: 1 and signal: null

@@ -1,0 +1,132 @@
+﻿@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-creepy: 'Creepster', cursive;
+  --font-body: 'Inter', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: #0A0A0A;
+  color: #E8E0F0;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #0A0A0A; }
+::-webkit-scrollbar-thumb { background: #6B2D8E; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #FF6B1A; }
+
+/* Film grain overlay */
+.film-grain::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' /%3E%3C/svg%3E");
+  animation: grain 0.5s steps(1) infinite;
+}
+
+@keyframes grain {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-5px, 5px); }
+  50% { transform: translate(5px, -5px); }
+  75% { transform: translate(-5px, -5px); }
+  100% { transform: translate(5px, 5px); }
+}
+
+/* Vignette */
+.vignette::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 40;
+  background: radial-gradient(ellipse at center, transparent 20%, rgba(0,0,0,0.9) 100%);
+}
+
+/* Desaturation filter for Upside Down */
+.desaturate {
+  filter: saturate(0.4) brightness(0.7);
+}
+
+/* Pulse glow for trigger button */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(255,107,26,0.4), inset 0 0 20px rgba(255,107,26,0.1); }
+  50% { box-shadow: 0 0 60px rgba(255,107,26,0.9), inset 0 0 40px rgba(255,107,26,0.3); }
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Creepy text glow */
+.text-glow-orange { text-shadow: 0 0 20px rgba(255,107,26,0.6), 0 0 40px rgba(255,107,26,0.3); }
+.text-glow-purple { text-shadow: 0 0 20px rgba(107,45,142,0.6), 0 0 40px rgba(107,45,142,0.3); }
+.text-glow-red { text-shadow: 0 0 20px rgba(255,51,51,0.8), 0 0 40px rgba(255,51,51,0.4); }
+
+/* Fog animation */
+@keyframes drift {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.fog-layer {
+  position: absolute;
+  width: 200%;
+  height: 100%;
+  background: radial-gradient(ellipse, rgba(58,69,85,0.15) 0%, transparent 70%);
+  animation: drift 20s linear infinite;
+}
+
+/* Jumpscare shake */
+@keyframes jumpscare-shake {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  10% { transform: translate(-10px, -10px) rotate(-2deg) scale(1.1); }
+  20% { transform: translate(10px, 10px) rotate(2deg) scale(1.05); }
+  30% { transform: translate(-10px, 10px) rotate(-2deg) scale(1.15); }
+  40% { transform: translate(10px, -10px) rotate(2deg) scale(1.1); }
+  50% { transform: translate(-10px, -10px) rotate(-2deg) scale(1.2); }
+  60% { transform: translate(10px, 10px) rotate(2deg) scale(1.05); }
+  70% { transform: translate(-10px, 10px) rotate(-2deg) scale(1.1); }
+  80% { transform: translate(10px, -10px) rotate(2deg) scale(1.15); }
+  90% { transform: translate(-10px, -10px) rotate(-2deg) scale(1.05); }
+}
+
+.jumpscare-anim {
+  animation: jumpscare-shake 0.1s linear infinite;
+}
+
+/* Timer pulse for urgency */
+@keyframes timer-urgent {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.15); opacity: 0.7; }
+}
+
+.timer-urgent {
+  animation: timer-urgent 0.5s ease-in-out infinite;
+}
+
+/* Focus indicator */
+*:focus-visible {
+  outline: 3px solid #FF6B1A;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* No selection on interactive game elements */
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+}
