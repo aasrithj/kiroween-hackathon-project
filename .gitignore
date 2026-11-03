@@ -1,35 +1,33 @@
-﻿# Dependencies
+# Dependencies (only needed for optional local tooling)
 node_modules/
 
-# Next.js build output
-.next/
-out/
-
-# Production
+# Generated output
 build/
+dist/
+out/
+coverage/
 
-# Misc
-.DS_Store
+# Local environment and secrets
+.env
+.env.*
+!.env.example
 *.pem
-Thumbs.db
 
-# Debug
+# Logs and temporary files
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+*.log
+*.tmp
+*.swp
 
-# Env files
-.env*.local
-.env
+# Operating system files
+.DS_Store
+Thumbs.db
+Desktop.ini
 
-# Vercel
-.vercel
-
-# TypeScript
-*.tsbuildinfo
-next-env.d.ts
-
-# IDE
+# Editors
 .idea/
 .vscode/
-*.swp
+.vs/

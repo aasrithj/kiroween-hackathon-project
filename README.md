@@ -1,61 +1,19 @@
-﻿# Upside Down Escape
+# Nocturne Night
 
-A dual-dimension, Halloween-themed web application built for the Kiroween 2026 Hackathon (Costume Contest / Haunting UI track).
+A polished, atmospheric Halloween gathering page for the Kiroween Costume Contest / Haunting UI track. The experience begins as a calm invitation and grows more uncanny as visitors explore and complete the guest-list form. Its visual direction uses the broad light-to-dark reveal idea: a welcoming, editorial surface slowly lets the house's eerie character show through.
 
-## What It Is
+## Run it
 
-A polished Halloween event landing page where users sign up for a spooky event. But hidden at the bottom is a tempting button that transports the user into a Stranger Things-inspired "Upside Down" dimension -- a dark escape room where they must discover clues and find the exit before the timer runs out. Fail, and they get jumpscared.
+Serve the repository root with any static HTTP server and visit `/src/`. The page uses ES modules, so use an HTTP server rather than opening the HTML with `file://`. There is no build step or runtime framework. GSAP 3 is loaded from the local `src/gsap.min.js` file; all other behavior uses browser APIs and plain ES modules. Fonts are loaded from Google Fonts with system fallbacks.
 
-## Tech Stack
+## Experience
 
-- Next.js 14 (App Router) + TypeScript
-- Tailwind CSS -- styling and responsive design
-- GSAP -- cinematic dimension transitions and scroll animations
-- Spline -- 3D hero element (with animated fallback)
-- Zustand -- state management
-- Web Audio API -- synthesized sound effects (no audio files needed)
-- Canvas/WebGL -- particle effects in the Upside Down
-- fast-check -- property-based testing for the pure logic layer
-- Vitest + React Testing Library -- unit and integration tests
+- Responsive landing page with event story, details, and a signup form as the final section.
+- Scroll and field completion combine into a 0–100 haunting level. Numeric progress and candles communicate status without relying on color alone.
+- Signup validation is local. Valid details are held only in sessionStorage at `nocturne-night:signup`; no network submission occurs.
+- A valid signup starts a staged, low-flash glitch and ominous mood sequence. The form is locked while it runs.
+- A discreet message from the house rewards exploration.
+- Reduced-motion preferences suppress continuous motion and replace glitch motion with a static message.
 
-## Getting Started
+The implementation follows `.kiro/specs/spooky-haunting-ui/`. The separate Upside Down Escape spec is not part of this page's implementation scope.
 
-1. Install dependencies: `npm install`
-2. Start the development server: `npm run dev` (then open http://localhost:3000)
-3. Run tests: `npm test`
-4. Build for production: `npm run build`
-
-## How Kiro Was Used
-
-### Spec-Driven Development
-The entire project was built using Kiro spec-driven workflow:
-- Requirements: 13 EARS-pattern requirements covering both dimensions, transitions, escape mechanics, jumpscare, responsive design, accessibility, and performance
-- Design: Layered architecture with pure logic layer (state machines, timer, clue engine, signup validator) separated from presentation layer, 9 correctness properties for PBT
-- Tasks: 16 epics with 58 leaf tasks across 17 dependency waves
-
-### Steering
-Custom steering files in .kiro/steering/ guided Kiro responses with project-specific conventions and tech stack preferences.
-
-### Property-Based Testing
-9 correctness properties validated with fast-check, covering the dimension state machine, timer engine, clue discovery, and signup validation.
-
-## Project Structure
-
-```
-src/
-  app/              Next.js App Router (layout, page, globals.css)
-  logic/            Pure logic layer (testable via PBT)
-  store/            Zustand store with persistence
-  audio/            Web Audio API sound synthesis
-  components/
-    normal/         Normal Dimension (Halloween landing page)
-    transition/     Cinematic dimension transition overlay
-    upside-down/    Upside Down escape room
-  types/            Shared TypeScript types
-  lib/              Escape room data
-  test/             PBT test suite
-```
-
-## License
-
-MIT
