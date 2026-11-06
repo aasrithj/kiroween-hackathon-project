@@ -1,34 +1,20 @@
-﻿---
+---
 inclusion: always
 ---
 
-# Tech Stack Guidelines
+# Tech stack
 
-## Next.js App Router
-- Use "use client" for components using hooks, state, or browser APIs
-- Server components for layout and static content
-- Use next/dynamic for code-splitting heavy components (Spline, Upside Down dimension)
-- App directory structure: src/app/layout.tsx, src/app/page.tsx, src/app/globals.css
+- Static HTML in `src/index.html`
+- CSS custom properties and responsive CSS in `src/style.css`
+- Plain browser JavaScript ES modules under `src/js/`
+- Local GSAP 3 source at `src/gsap.min.js`
+- Browser APIs: sessionStorage, IntersectionObserver, requestAnimationFrame, matchMedia, and native dialog
+- No framework, CSS framework, bundler, or 3D library; the page runs as static files
 
-## GSAP
-- Always use the useGSAP() hook from @gsap/react for cleanup
-- Register plugins once: gsap.registerPlugin(ScrollTrigger, useGSAP)
-- Use gsap.context() with { scope } to restrict selector text
-- Use ScrollTrigger on top-level tweens, not nested ones
+## Architecture
 
-## Zustand
-- Single store with persist middleware for localStorage/sessionStorage
-- Use selectors to prevent unnecessary re-renders: useAppStore((s) => s.field)
-- Actions defined inline in the store creator
-
-## fast-check PBT
-- Each property test runs minimum 100 iterations
-- Test ONLY the pure logic layer (no React/DOM dependencies)
-- Tag each test: // Feature: upside-down-escape, Property N: <description>
-- Use fc.assert(fc.property(...)) pattern with Vitest
-
-## Audio
-- AudioManager is a singleton with Web Audio API
-- All sounds synthesized programmatically (no audio files needed)
-- Mute state persists to localStorage
-- Audio must be unlocked by user gesture before playback
+- Pure calculations and state transitions live in `src/js/logic/`.
+- Configuration and copy live in `src/js/config.js` and `src/js/content.js`.
+- Shared GSAP timeline factories live in `src/js/anim/timelines.js`.
+- `src/script.js` wires browser events, form behavior, accessibility, and visual state.
+- CSS uses semantic, descriptive kebab-case class names and a small set of design tokens.
