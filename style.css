@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+
 :root {
   color-scheme: dark;
   --ink: #100d18;
@@ -32,6 +34,7 @@ body {
   font: 400 16px/1.6 var(--sans);
   overflow-x: hidden;
   transition: background 1s, color 1s;
+  font-family: 'Outfit';
 }
 
 body::before {
@@ -899,15 +902,6 @@ h1, h2, h3, p {
   background: #998b99;
 }
 
-.site-footer-span {
-  text-align: center;
-}
-
-.site-footer {
-  display: flex;
-  text-align: center;
-}
-
 .candle i {
   position: absolute;
   left: 2px;
@@ -1076,9 +1070,9 @@ h1, h2, h3, p {
   border-top: 1px solid var(--line);
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   color: #a69ba8;
-  font-size: .66rem;
+  font-size: .80rem;
 }
 
 .site-footer .brand {
