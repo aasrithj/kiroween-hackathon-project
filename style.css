@@ -134,8 +134,8 @@ button, input {
 
 .navbar-logo-child {
   display: block;
-  width: 52px;
-  height: 52px;
+  width: 70px;
+  height: 70px;
   object-fit: contain;
   filter: drop-shadow(0 0 14px rgba(239, 139, 80, .2));
 }
@@ -821,6 +821,10 @@ h1, h2, h3, p {
   filter: sepia(1) saturate(.7);
 }
 
+.witch-hat {
+  transform: rotate(35deg);
+}
+
 .signup__decoration span {
   position: absolute;
   right: -1rem;
@@ -927,7 +931,7 @@ h1, h2, h3, p {
 }
 
 .candles__caption {
-  font-size: .68rem;
+  font-size: .75rem;
   color: #a99ead;
   margin-top: 0.5rem;
 }
@@ -1045,6 +1049,14 @@ h1, h2, h3, p {
   font-size: 1.25rem;
   transition: all 0.3s ease;
   cursor: pointer;
+}
+
+.note-parent {
+  width: 100%;
+}
+
+.note-parent:hover {
+  color: #ffffff;
 }
 
 .secret-message {
