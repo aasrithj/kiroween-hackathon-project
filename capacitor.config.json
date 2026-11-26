@@ -1,0 +1,8 @@
+{
+  "appId": "com.kiroween.nocturnenight",
+  "appName": "Nocturne Night",
+  "webDir": "www",
+  "android": {
+    "path": "android-capacitor"
+  }
+}

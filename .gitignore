@@ -6,6 +6,10 @@ build/
 dist/
 out/
 coverage/
+www/
+
+# Incomplete legacy Capacitor folder; the active Android project is android-capacitor/
+android/
 
 # Local environment and secrets
 .env
