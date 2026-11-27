@@ -1,11 +1,11 @@
 # Spline brief: Underside scenes
 
-The Underside already runs without Spline: every creature has a hand-drawn canvas fallback. Spline scenes replace the fallbacks with real 3D. There are three slots. Build any of them in the Spline editor, export, paste the URL into `js/config.js`, and it appears automatically.
+The Underside already runs without Spline: every creature has a hand-drawn canvas fallback. Spline scenes replace the fallbacks with real 3D. There are three slots. Build any of them in the Spline editor, export, paste the URL into `www/js/config.js`, and it appears automatically.
 
 ## How a scene plugs in
 
 1. In Spline, choose **Export → Code → Vanilla JS** and copy the `https://prod.spline.design/…/scene.splinecode` URL.
-2. Paste it into `SPLINE_SCENES` in `js/config.js` (`watcher`, `door`, or `figure`).
+2. Paste it into `SPLINE_SCENES` in `www/js/config.js` (`watcher`, `door`, or `figure`).
 3. The site loads `@splinetool/runtime` only when at least one URL is set. If loading fails, it falls back to the canvas creature silently.
 
 Each scene is drawn **upright, over** the upside-down world. Because the world is inverted, **build every scene hanging from the ceiling**: things should dangle, crawl, or stand upside down.

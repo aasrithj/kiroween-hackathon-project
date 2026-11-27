@@ -15,8 +15,14 @@ The work is sequenced from the bottom up:
 
 ## Tasks
 
+- [x] Add Capacitor 8 native packaging for Android and iOS
+  - Install Capacitor core, CLI, Android, and iOS packages in the existing npm project.
+  - Configure `www/` as the single editable web directory and native web directory; remove the duplicate web source files from the repository root.
+  - Add sync and run commands that sync `www/` before launching Android or iOS.
+  - Keep the browser experience static and preserve the no-web-framework/no-bundler design.
+
 - [ ] 1. Set up project structure and GSAP source
-  - Create `index.html`, `css/`, `js/`, `js/logic/`, `js/anim/`, `js/ui/`, `vendor/gsap/`, and `tests/` directories
+  - Create `www/index.html`, `www/js/`, `www/js/logic/`, `www/js/anim/`, `www/js/ui/`, `www/vendor/`, and `tests/` directories
   - Vendor GSAP and the GSAP plugins used (ScrollTrigger, plus any others declared) into `vendor/gsap/`, or declare a single pinned CDN URL, and record the choice in `README.md`
   - Add `package.json` with development-only dependencies (linters, test runner, property-based testing library); the page itself must have no runtime dependencies and no build step
   - Create `js/config.js` holding the Escape_Destination location constant, the sessionStorage key, timing limits, and the Ambient_Effect maximum
@@ -178,10 +184,10 @@ The work is sequenced from the bottom up:
 ### Current landing handoff and footer threshold
 
 - [x] Update `js/logic/sequence.js` so valid submissions one and two advance through temporary shake states and the third enters the crossing state.
-- [x] Add two distinct messages, an escalating GSAP shake, and the third-submission glitch/fade handoff to `escape.html`.
+- [x] Add two distinct messages, an escalating GSAP shake, and the third-submission glitch/fade handoff to `www/escape.html`.
 - [x] Normalize scroll progress to the footer-entry point in both the module and fallback implementations; add narrow-screen signup bottom spacing.
 - [x] Update the README, steering, and Kiro hook to document the three-click sequence, footer threshold, and arrival-only implementation boundary.
-- [x] Add the sparse pixel-tear layer to the final glitch and the shared-GSAP zoom-out reveal to the escape arrival title, with a static reduced-motion fallback.
+- [x] Keep the existing arrival title sequence and its reduced-motion behavior intact after the final glitch handoff.
 
 ## Notes
 

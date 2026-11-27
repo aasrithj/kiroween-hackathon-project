@@ -6,7 +6,7 @@ Haunted_Page is a single scrolling Halloween event page built with only HTML, CS
 
 ### Key Design Decisions
 
-- **Vanilla stack only.** Static files, ES modules, no framework, no CSS utility library, no bundler. GSAP is vendored locally or loaded from one pinned URL.
+- **Vanilla web stack with native wrapper.** The web app remains static files and ES modules with no web UI framework, CSS utility library, or bundler. The editable web app lives in `www/`, which Capacitor 8 uses directly for native Android/iOS sync. GSAP is vendored locally or loaded from one pinned URL.
 - **Pure logic is separated from the DOM.** Haunting_Level, validation, the sequence state machine, and storage are plain functions in `js/logic/` and `js/storage.js`. They run in Node for property-based tests with no browser.
 - **GSAP owns all motion.** Every animation comes from a timeline factory in `js/anim/`, with durations and easing defined in one module (`js/anim/timelines.js`).
 - **One explicit state machine drives the signup flow.** `ready -> shaking -> ready -> shaking -> ready -> crossing -> done`; the reducer counts valid submissions and ignores out-of-order events.
@@ -73,34 +73,26 @@ flowchart TD
 ### Project Layout
 
 ```
-index.html
-css/
-  tokens.css        design tokens (custom properties)
-  base.css          reset, typography, focus styles
-  sections.css      hero, details, signup, form, secret message
-  effects.css       fog, candles, scanlines, vignette, ominous grade
-js/
-  main.js           bootstrap and wiring
-  config.js         constants (destination URL, storage key, limits)
-  content.js        all themed copy (errors, hidden message, labels)
-  storage.js        sessionStorage read and write for Signup_Details
-  logic/
-    haunting.js     Haunting_Level and effect scaling
-    validation.js   Signup_Details validation
-    sequence.js     sequence state machine (reducer)
-  anim/
-    timelines.js    shared durations, easing, timeline factories
-    ambient.js      Ambient_Effect layers and parallax
-    glitch.js       Glitch_Sequence timeline
-    ominous.js      Ominous_Sequence timeline
-    handoff.js      Handoff transition timeline
-  ui/
-    form.js         Signup_Form behavior and sequence orchestration
-    haunting-display.js  Haunting_Level display and candle indicators
-    secret-message.js    Secret_Message_Button behavior
-    a11y.js         reduced-motion preference and live-region announcer
-vendor/gsap/        GSAP and plugins (or a pinned CDN URL in README)
-tests/              unit and property-based tests
+www/                 single editable web source and Capacitor webDir
+  index.html
+  escape.html
+  style.css
+  underside.css
+  gsap.min.js
+  haunting-fallback.js
+  script.js
+  images/ audio/ videos/ assets/ vendor/
+  js/
+    main.js           bootstrap and wiring
+    config.js         constants (destination URL, storage key, limits)
+    content.js        all themed copy (errors, hidden message, labels)
+    storage.js        sessionStorage read and write for Signup_Details
+    logic/            pure progress, validation, and sequence logic
+    anim/             shared GSAP timelines and effects
+    ui/               form, progress, secret message, and a11y wiring
+tests/               unit and property-based tests
+scripts/serve.mjs    local HTTP server rooted at www/
+android/ ios/        Capacitor native projects; synced web copies are generated here
 .kiro/
   steering/         design-language.md, code-conventions.md
   hooks/            lint-on-save and verify-deps hooks

@@ -5,8 +5,8 @@ import {
   BEATS, beatAt, dreadAt, figureStep, createFlashLimiter, createScareGate,
   createBacktrackDetector, clockLabel, guestName, timecode, holdProgress,
   tapeAt, minutesTowardThree, minutesLabel, errorCount, limitScroll, countdown, applyGates, partyClock
-} from '../js/logic/underside.js';
-import { underside as COPY } from '../js/content.js';
+} from '../www/js/logic/underside.js';
+import { underside as COPY } from '../www/js/content.js';
 
 const RUNS = 2000;
 const rand = (min, max) => min + Math.random() * (max - min);

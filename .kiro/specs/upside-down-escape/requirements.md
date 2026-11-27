@@ -6,7 +6,7 @@ Upside_Down_Escape is the playable second experience in Nocturne Night. After th
 
 The visitor has seven minutes (420 seconds) to discover four clues, satisfy three explicit demands from the Demon, and reach the gate. The demands are concrete puzzle interactions with deterministic answers supplied by clues. If time expires first, a brief GSAP-driven silhouette jumpscare plays, followed by a clear “You failed” state with retry and return options. If all demands are satisfied and the gate is activated in time, a success sequence returns the visitor to Nocturne Night.
 
-Current implementation stops at the arrival screen after the landing-page handoff; gameplay remains future work. The complete site is planned as a static HTML, CSS, JavaScript, and GSAP project. Pure timer, puzzle, and state-transition logic is separated from DOM and animation code. No framework, CSS utility library, bundler, 3D runtime, or network service is required.
+Current implementation stops at the arrival screen after the landing-page handoff; gameplay remains future work. The web experience remains a static HTML, CSS, JavaScript, and GSAP project. Capacitor 8 may package the same static assets for Android and iOS through the configured `www/` web directory; it does not replace the web stack with a UI framework or bundler. Pure timer, puzzle, and state-transition logic is separated from DOM and animation code. No CSS utility library, 3D runtime, or network service is required.
 
 ## Glossary
 
@@ -43,6 +43,7 @@ Current implementation stops at the arrival screen after the landing-page handof
 3. THE Upside_Down_Escape SHALL run as static files from the project's documented static HTTP server workflow.
 4. THE Upside_Down_Escape SHALL load GSAP from the single source declared by the project README and SHALL NOT add a second GSAP source or a plugin unless that plugin is declared there.
 5. THE Upside_Down_Escape SHALL separate pure state, timer, puzzle, and validation logic from DOM and GSAP effects.
+6. WHEN packaged for native platforms, THE site SHALL keep its editable web app in Capacitor's `www/` web directory and synchronize that directory into the Android and iOS shells through the documented npm scripts.
 
 ### Requirement 2: Thematic Escape Experience
 
@@ -71,7 +72,7 @@ Current implementation stops at the arrival screen after the landing-page handof
 7. THE Escape_State reducer SHALL ignore events that are illegal in its current state and SHALL never start failure or success sequences more than once per attempt.
 8. THE current implementation slice SHALL stop at the arrival state and SHALL NOT start the seven-minute timer or expose puzzle interactions until those game tasks are implemented.
 9. WHEN the arrival page loads with motion allowed and GSAP available, THE Escape_Dimension SHALL reveal its original arrival heading with a centered zoom-out settle from beyond its resting scale; without GSAP or with reduced motion, the heading SHALL remain immediately readable.
-10. WHEN `escape.html` loads with motion allowed, THE page SHALL play the silent Nocturne Night title-sequence video using the WebM asset with an MP4 fallback, then reveal the existing arrival scene when playback ends; a visible skip control, reduced-motion preference, playback error, or blocked autoplay SHALL reveal the arrival scene without trapping the visitor.
+10. WHEN `www/escape.html` loads with motion allowed, THE page SHALL play the silent Nocturne Night title-sequence video using the WebM asset with an MP4 fallback, then navigate to the existing arrival scene when playback ends; a visible skip control, reduced-motion preference, playback error, or blocked autoplay SHALL navigate to arrival without trapping the visitor.
 11. THE title-sequence video SHALL fit the viewport without horizontal overflow, preserve its aspect ratio, and SHALL NOT include or replace the separate Stranger Things music track or its sound toggle.
 
 ### Requirement 4: Escape Environment and Interactable Objects
@@ -225,4 +226,4 @@ Current implementation stops at the arrival screen after the landing-page handof
 
 ## Current Delivery Boundary
 
-This spec records the planned Stranger-Things-inspired escape experience. The current landing-page milestone plays the silent title sequence in `escape.html`, then reveals the arrival screen and keeps its separate Stranger Things music autoplay and sound toggle. It stops before starting the seven-minute timer, clues, Demon demands, or jumpscare. Those mechanics remain future implementation work covered by the requirements below.
+This spec records the planned Stranger-Things-inspired escape experience. The current landing-page milestone plays the silent title sequence in `www/escape.html`, then reveals the arrival screen and keeps its separate Stranger Things music autoplay and sound toggle. It stops before starting the seven-minute timer, clues, Demon demands, or jumpscare. Those mechanics remain future implementation work covered by the requirements below.

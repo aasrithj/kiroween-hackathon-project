@@ -6,7 +6,7 @@ Haunted_Page is a haunted Halloween event landing and signup page built for the 
 
 The visual and motion quality target is the polish of gsap.com: bold typography, smooth easing, staggered text reveals, and scroll-driven animation. When the visitor submits valid details, a staged glitching error corrupts the interface, an ominous mood settles over the page, and the visitor is then transported to a separate escape experience. That destination is specified in its own spec and is intentionally not described here.
 
-The application is built strictly with HTML, CSS, JavaScript, and GSAP. There is no framework, no CSS utility library, no bundler requirement, and no 3D library. Development follows Kiro's spec-driven workflow with steering files, automation hooks, and property-based testing of the pure-function logic.
+The web experience is built with HTML, CSS, JavaScript, and GSAP. It has no web UI framework, CSS utility library, or bundler requirement. Capacitor 8 provides an optional native Android/iOS wrapper and packages an unchanged copy of the static web assets from `www/`. Development follows Kiro's spec-driven workflow with steering files, automation hooks, and property-based testing of the pure-function logic.
 
 ## Glossary
 
@@ -39,10 +39,11 @@ The application is built strictly with HTML, CSS, JavaScript, and GSAP. There is
 
 #### Acceptance Criteria
 
-1. THE Haunted_Page SHALL be implemented using only HTML, CSS, JavaScript, and GSAP (including GSAP plugins), with visuals created from HTML elements, CSS, and inline SVG.
+1. THE Haunted_Page web UI SHALL be implemented using only HTML, CSS, JavaScript, and GSAP (including GSAP plugins), with visuals created from HTML elements, CSS, and inline SVG; Capacitor may wrap the unchanged web UI for native Android and iOS builds.
 2. THE Haunted_Page SHALL NOT depend on React, Next.js, Tailwind CSS, Three.js, Spline, or any other UI framework, CSS framework, or 3D library.
 3. THE Haunted_Page SHALL run as static files served from a plain web server or opened from the file system, with no build step required to run it.
 4. THE Haunted_Page SHALL load GSAP and each GSAP plugin it uses from a single declared source (a vendored local file or a pinned CDN URL) recorded in the project documentation.
+5. WHEN native packaging is requested, THE project SHALL keep the editable static web assets in the configured Capacitor `webDir` and synchronize them with the Android and iOS projects without introducing a web framework or bundler.
 5. THE Haunted_Page SHALL structure its JavaScript as plain ES modules, with the pure-function logic (Haunting_Level, validation, sequence ordering) separated from DOM and GSAP code.
 
 ### Requirement 2: Landing Experience and Visual Design
