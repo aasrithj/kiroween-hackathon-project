@@ -1,10 +1,10 @@
-# Requirements Document
+﻿# Requirements Document
 
 ## Introduction
 
 Haunted_Page is a haunted Halloween event landing and signup page built for the Kiroween 2026 "Costume Contest" category. The category asks for a haunting user interface that is polished and unforgettable, with spooky design elements that enhance the app's function. Here, the haunting is the feedback system, not decoration: the page begins eerie but calm, and grows more unsettled as the visitor descends toward the Signup_Form at the bottom and fills it in. Field status, validation messages, and progress are all expressed through spooky elements (flickering candles, whispers, fog) so the theme directly serves the signup task.
 
-The visual and motion quality target is the polish of gsap.com: bold typography, smooth easing, staggered text reveals, and scroll-driven animation. When the visitor submits valid details, a staged glitching error corrupts the interface, an ominous mood settles over the page, and the visitor is then transported to a separate escape experience. That destination is specified in its own spec and is intentionally not described here.
+The visual and motion quality target is bold typography, smooth easing, staggered reveals, and scroll-driven atmosphere. The first two valid submissions trigger escalating shakes and distinct messages. The third produces a restrained glitch, fades the screen to black, and transports the visitor to the arrival screen for the separate escape experience.
 
 The web experience is built with HTML, CSS, JavaScript, and GSAP. It has no web UI framework, CSS utility library, or bundler requirement. Capacitor 8 provides an optional native Android/iOS wrapper and packages an unchanged copy of the static web assets from `www/`. Development follows Kiro's spec-driven workflow with steering files, automation hooks, and property-based testing of the pure-function logic.
 
@@ -21,14 +21,14 @@ The web experience is built with HTML, CSS, JavaScript, and GSAP. It has no web 
 - **Haunting_Level**: An integer from 0 to 100 measuring how haunted the interface currently is, derived from scroll progress and Signup_Form completion.
 - **Ambient_Effect**: A continuous decorative haunting element such as fog, flickering light, or drifting spectral shapes.
 - **Glitch_Sequence**: The staged, intentional glitching error that plays after a valid Signup_Form submission.
-- **Ominous_Sequence**: The GSAP_Timeline that plays after the Glitch_Sequence and establishes the ominous mood.
+- **Valid_Attempt**: A form submission whose name and email both pass validation; invalid submissions do not increment the crossing count.
 - **Escape_Destination**: The separate page or experience the Registrant is transported to, defined in its own spec.
 - **Handoff**: The navigation from the Haunted_Page to the Escape_Destination.
 - **Secret_Message_Button**: A discreet interactive element on the Landing_Experience that reveals a hidden message.
 - **GSAP_Timeline**: A GSAP animation sequence.
 - **Steering_Guide**: A Kiro steering file that codifies development conventions.
 - **PBT_Property**: A property-based test specification verifying a pure-function invariant.
-- **Kiro_Hook**: A Kiro automation hook that runs a command on a development event.
+- **Kiro_Hook**: A Kiro automation hook that runs an agent prompt or command on a development event.
 - **Spec_Workflow**: The Kiro requirements, design, and tasks spec-driven development process.
 
 ## Requirements
@@ -39,9 +39,13 @@ The web experience is built with HTML, CSS, JavaScript, and GSAP. It has no web 
 
 #### Acceptance Criteria
 
+<<<<<<< HEAD
 1. THE Haunted_Page web UI SHALL be implemented using only HTML, CSS, JavaScript, and GSAP (including GSAP plugins), with visuals created from HTML elements, CSS, and inline SVG; Capacitor may wrap the unchanged web UI for native Android and iOS builds.
+=======
+1. THE Haunted_Page SHALL be implemented using only HTML, CSS, JavaScript, and GSAP (including GSAP plugins), with visuals created from HTML elements, CSS, and inline SVG; the built-in Web Audio API MAY synthesize interaction sounds without adding a runtime dependency.
+>>>>>>> f0244bd470db10f735d1188681264ee56e46ef39
 2. THE Haunted_Page SHALL NOT depend on React, Next.js, Tailwind CSS, Three.js, Spline, or any other UI framework, CSS framework, or 3D library.
-3. THE Haunted_Page SHALL run as static files served from a plain web server or opened from the file system, with no build step required to run it.
+3. THE Haunted_Page SHALL run as static files served from a plain web server, with no build step required to run it.
 4. THE Haunted_Page SHALL load GSAP and each GSAP plugin it uses from a single declared source (a vendored local file or a pinned CDN URL) recorded in the project documentation.
 5. WHEN native packaging is requested, THE project SHALL keep the editable static web assets in the configured Capacitor `webDir` and synchronize them with the Android and iOS projects without introducing a web framework or bundler.
 5. THE Haunted_Page SHALL structure its JavaScript as plain ES modules, with the pure-function logic (Haunting_Level, validation, sequence ordering) separated from DOM and GSAP code.
@@ -66,8 +70,8 @@ The web experience is built with HTML, CSS, JavaScript, and GSAP. It has no web 
 
 #### Acceptance Criteria
 
-1. THE Haunted_Page SHALL drive all non-trivial animation (entrance, scroll reveals, Ambient_Effect motion, the first and second submission shakes, the third-submission Glitch_Sequence, and the black Handoff) through GSAP_Timelines.
-2. THE Haunted_Page SHALL complete each non-looping GSAP_Timeline within 2000 milliseconds.
+1. THE Haunted_Page SHALL drive all non-trivial animation (entrance, scroll reveals, Ambient_Effect motion, both escalating shakes, final Glitch_Sequence, and Handoff) through GSAP_Timelines.
+2. THE Haunted_Page SHALL complete each non-looping GSAP_Timeline within 2000 milliseconds; the final Handoff SHALL complete within 600 milliseconds.
 3. THE Haunted_Page SHALL animate only the CSS properties transform and opacity, plus filter where required for the Glitch_Sequence, so that animation stays on the compositor where possible.
 4. WHEN the Haunting_Level increases, THE Haunted_Page SHALL play a GSAP_Timeline that visibly intensifies the Ambient_Effect elements.
 5. THE Haunted_Page SHALL kill or pause every looping GSAP_Timeline when its elements are off-screen or the browser tab is hidden, and resume it when they return.
@@ -79,12 +83,13 @@ The web experience is built with HTML, CSS, JavaScript, and GSAP. It has no web 
 
 #### Acceptance Criteria
 
-1. THE Haunted_Page SHALL compute the Haunting_Level as an integer from 0 to 100 equal to the sum of 60 multiplied by scroll progress (a value from 0 to 1) and 40 multiplied by the ratio of valid Signup_Form fields to total Signup_Form fields, rounded to the nearest integer and capped at 100. Scroll progress SHALL reach 1 as the footer first enters the viewport, so a visitor with no valid fields reaches a level of 60 at that point.
+1. THE Haunted_Page SHALL compute the Haunting_Level as an integer from 0 to 100 equal to the sum of 60 multiplied by scroll progress (a value from 0 to 1) and 40 multiplied by the ratio of valid Signup_Form fields to total Signup_Form fields, rounded to the nearest integer and capped at 100. Scroll progress SHALL reach 1 when the footer first enters the bottom of the viewport.
 2. THE Haunted_Page SHALL display the current Haunting_Level to the Registrant at all times, using at least one non-color cue (for example a numeric value or a number of lit candles).
 3. WHILE the Haunting_Level is greater than 75, THE Haunted_Page SHALL render all Ambient_Effect elements and apply at least one additional visual effect not present at a Haunting_Level of 75 or below.
 4. WHEN the Haunting_Level increases, THE Haunted_Page SHALL increase both the count and the motion speed of Ambient_Effect elements, such that both values at a Haunting_Level of 100 are greater than at a Haunting_Level of 1.
 5. WHEN a Signup_Form field becomes valid, THE Haunted_Page SHALL show that state through a spooky status indicator (for example a candle that lights) in addition to any color change.
-6. WHEN a valid Signup_Form submission occurs, THE Haunted_Page SHALL set the Haunting_Level to 100.
+6. WHEN the third valid Signup_Form submission occurs, THE Haunted_Page SHALL set the Haunting_Level to 100.
+7. WHEN the Registrant scrolls to immediately above the footer with no valid fields, THE Haunted_Page SHALL reach a Haunting_Level of 60. On viewports narrower than 641 px, THE Signup_Section SHALL provide additional bottom spacing as a comfortable scroll runway.
 
 ### Requirement 5: Signup Form
 
@@ -96,24 +101,22 @@ The web experience is built with HTML, CSS, JavaScript, and GSAP. It has no web 
 2. THE Signup_Form SHALL contain a full name field, an email field, and a signup button, each with a visible text label.
 3. IF a Registrant submits the Signup_Form with an empty name, a name longer than 100 characters, or an email that is not a syntactically valid email address, THEN THE Haunted_Page SHALL reject the submission, display a themed error message next to each invalid field, and move keyboard focus to the first invalid field.
 4. WHEN a Registrant leaves a field, THE Haunted_Page SHALL validate that field and display or clear its themed error message accordingly.
-5. WHEN a Registrant submits valid Signup_Details, THE Haunted_Page SHALL advance the invitation sequence by one valid attempt.
-6. WHILE either of the first two shake animations is in progress, THE Haunted_Page SHALL temporarily disable the form and restore it when the shake ends; after the third valid submission, THE Haunted_Page SHALL lock the form for the final transition.
-7. THE Haunted_Page SHALL store Signup_Details in sessionStorage under one documented key only on the third valid submission, and SHALL NOT transmit them to any server.
-8. WHEN the first valid submission occurs, THE Haunted_Page SHALL show a distinct message and a brief screen shake, then allow another valid submission.
-9. WHEN the second valid submission occurs, THE Haunted_Page SHALL show a different message and a visibly stronger shake, then allow a third valid submission.
-10. WHEN the third valid submission occurs, THE Haunted_Page SHALL play a brief glitch, fade the screen to black, and navigate to the Stranger-Things-inspired arrival screen without starting escape gameplay.
+5. WHEN a Registrant submits invalid Signup_Details, THE Haunted_Page SHALL play one brief, quiet, synthesized error cue per rejected submission, regardless of the number of invalid fields.
+6. WHEN a Registrant submits valid Signup_Details for the first or second time, THE Haunted_Page SHALL play an escalating screen shake and announce distinct themed copy, then allow another valid submission.
+7. WHEN a Registrant submits valid Signup_Details for the third time, THE Haunted_Page SHALL store the details, play the final Glitch_Sequence, darken the screen, and navigate to the Escape_Destination. While any attempt animation is active, THE Haunted_Page SHALL disable the signup button and ignore further submissions.
+8. Invalid submissions SHALL NOT increment the valid-attempt count. THE Haunted_Page SHALL store Signup_Details in sessionStorage under a single documented key on the third valid submission and SHALL NOT transmit them to any server.
 
-### Requirement 6: Glitch and Black Handoff
+### Requirement 6: Final Glitch and Crossing
 
-**User Story:** As a visitor, I want the invitation form to build suspense over three valid requests and then cross into an eerie new scene.
+**User Story:** As a visitor, I want repeated valid signup requests to receive escalating supernatural responses, so that the third request feels like a crossing into another place.
 
 #### Acceptance Criteria
 
-1. WHEN the third valid submission starts the Glitch_Sequence, THE Haunted_Page SHALL use restrained horizontal jitter, scanline movement, brief blocky pixel-tear fragments, and a subtle hue shift before fading to black.
+1. WHEN the third valid submission starts the Glitch_Sequence, THE Haunted_Page SHALL play a GSAP_Timeline that visibly glitches the interface using restrained horizontal jitter, scanline movement, and brief blocky pixel-tear fragments.
 2. THE Haunted_Page SHALL display a themed error message during the Glitch_Sequence, with its copy defined in one content module, and SHALL present it as an intentional part of the experience rather than a technical failure.
 3. THE Haunted_Page SHALL complete the Glitch_Sequence within 2000 milliseconds of starting it.
-4. WHEN the Glitch_Sequence completes, THE Haunted_Page SHALL fade the full screen to black before the Handoff.
-5. THE Haunted_Page SHALL announce the third-attempt message before the Glitch_Sequence and expose it through the ARIA live region.
+4. WHEN the third-attempt Glitch_Sequence completes, THE Haunted_Page SHALL darken the entire viewport as the final Handoff transition.
+5. THE Haunted_Page SHALL keep each attempt message visible until the visitor's next action, and SHALL keep the final glitch message visible until the dark transition begins.
 6. THE Haunted_Page SHALL NOT produce more than three flashes in any one-second period and SHALL NOT flash large areas of saturated red at any time.
 
 ### Requirement 7: Transport to the Escape
@@ -122,12 +125,14 @@ The web experience is built with HTML, CSS, JavaScript, and GSAP. It has no web 
 
 #### Acceptance Criteria
 
-1. WHEN the third-submission glitch completes, THE Haunted_Page SHALL fade to black and navigate the browser to the Escape_Destination.
+1. WHEN the third-attempt Handoff completes, THE Haunted_Page SHALL navigate the browser to the Escape_Destination.
 2. THE Haunted_Page SHALL define the Escape_Destination location in a single configuration constant so that it can be changed without editing the sequence logic.
-3. WHEN the Handoff begins, THE Haunted_Page SHALL play a fade-to-black GSAP_Timeline of at most 700 milliseconds before navigating.
-4. THE Haunted_Page SHALL begin the Handoff no later than 3500 milliseconds after the third valid Signup_Form submission when no reduced-motion preference is enabled.
+3. WHEN the Handoff begins, THE Haunted_Page SHALL play a transition GSAP_Timeline of at most 600 milliseconds before navigating.
+4. THE Haunted_Page SHALL begin the Handoff within 3000 milliseconds after the third valid Signup_Form submission when no reduced-motion preference is enabled.
 5. IF the browser restores the Haunted_Page from the back-forward cache after a Handoff, THEN THE Haunted_Page SHALL show the calm initial state and SHALL NOT replay the Glitch_Sequence automatically.
-6. THE Haunted_Page SHALL navigate to the arrival screen described by the Upside_Down_Escape spec and SHALL NOT start timer, clue, demand, or jumpscare gameplay in this milestone.
+6. THE initial Escape_Destination SHALL show only an atmospheric arrival state; its playable clue hunt remains defined by the Upside_Down_Escape spec.
+7. WHEN the third valid submission starts the final transition, THE Haunted_Page SHALL play a brief original supernatural synth cue generated with Web Audio, not a recording or recreation of copyrighted Stranger Things music. It SHALL start in the submit interaction and be shortened for reduced-motion users.
+8. IF Web Audio is unavailable or cannot resume, THEN THE Haunted_Page SHALL complete the Handoff silently without disrupting navigation.
 
 ### Requirement 8: Secret Message Button
 
@@ -158,10 +163,10 @@ The web experience is built with HTML, CSS, JavaScript, and GSAP. It has no web 
 
 #### Acceptance Criteria
 
-1. WHERE a Registrant has a reduced-motion preference enabled, THE Haunted_Page SHALL render Ambient_Effect elements without continuous motion, preserve all three attempt messages, suppress shakes and glitch motion, and use a brief non-flashing black Handoff.
+1. WHERE a Registrant has a reduced-motion preference enabled, THE Haunted_Page SHALL render Ambient_Effect elements without continuous motion and SHALL replace the Glitch_Sequence with a static, non-flashing error state.
 2. WHERE a Registrant has a reduced-motion preference enabled, THE Haunted_Page SHALL complete each GSAP_Timeline within at most 300 milliseconds.
 3. THE Haunted_Page SHALL provide keyboard navigation for every interactive element, so that each element is reachable via keyboard focus, operable via keyboard activation, and shows a visible focus indicator when focused.
-4. THE Haunted_Page SHALL maintain a color contrast ratio of at least 4.5:1 for all text content at every Haunting_Level and during the Glitch_Sequence and Ominous_Sequence.
+4. THE Haunted_Page SHALL maintain a color contrast ratio of at least 4.5:1 for all text content at every Haunting_Level and during the Glitch_Sequence and Handoff.
 5. WHERE a Registrant operates a screen reader, WHEN the Haunting_Level crosses 75, a validation error appears, the Glitch_Sequence starts, or the Handoff begins, THE Haunted_Page SHALL announce the change through an ARIA live region.
 6. THE Haunted_Page SHALL use semantic HTML (landmarks, headings in order, labeled form controls) so that the page structure is exposed to assistive technology.
 7. THE Haunted_Page SHALL warn the Registrant before any strobing or flashing effect and SHALL provide a way to skip the animated Glitch_Sequence.
@@ -183,11 +188,10 @@ The web experience is built with HTML, CSS, JavaScript, and GSAP. It has no web 
 
 #### Acceptance Criteria
 
-1. WHEN a developer saves a source file within the project, a PostFileSave Kiro_Hook SHALL run the matching linter (JavaScript, CSS, or HTML) against the saved file and produce a pass or fail result.
-2. IF a lint check fails, THEN the Kiro_Hook SHALL surface the lint error to the developer and prevent the change workflow from advancing until the error is resolved.
-3. WHEN a session starts, a SessionStart Kiro_Hook SHALL verify that the declared GSAP source and every project-declared development dependency are available.
-4. THE Haunted_Page SHALL define all Kiro_Hook configurations under the project hooks directory.
-5. IF the SessionStart Kiro_Hook detects a missing dependency, THEN the Kiro_Hook SHALL report it to the developer and prevent the session from proceeding.
+1. WHEN a developer saves a landing-page, arrival-page, related JavaScript, README, or governing Kiro spec/steering file, a PostFileSave Kiro_Hook SHALL review the nightometer footer threshold and three-attempt transition against the project requirements.
+2. THE Kiro_Hook SHALL report concrete mismatches without modifying files automatically or running an undeclared test/linter command.
+3. THE Haunted_Page SHALL define project Kiro_Hook configurations in `.kiro/hooks/` using Kiro's supported JSON hook format.
+4. THE PostFileSave Kiro_Hook SHALL check the reduced-motion and missing-GSAP behavior and SHALL confirm that the arrival page does not start the future puzzle-game mechanics.
 
 ### Requirement 13: Kiro Steering Guides
 
@@ -208,7 +212,7 @@ The web experience is built with HTML, CSS, JavaScript, and GSAP. It has no web 
 1. FOR ALL pairs of inputs where scroll progress and valid-field count are each greater than or equal to the other pair's values, THE Haunted_Page SHALL compute a Haunting_Level that is greater than or equal to the other pair's Haunting_Level.
 2. FOR ALL inputs, THE Haunted_Page SHALL compute a Haunting_Level that is an integer between 0 and 100 inclusive.
 3. FOR ALL strings, THE Haunted_Page SHALL validate Signup_Details deterministically, accepting a name of 1 to 100 characters with a valid email and rejecting every other combination.
-4. FOR ALL sequences of form actions, invalid submissions SHALL NOT advance the attempt count, the first two valid submissions SHALL return to ready after their shakes, and only the third valid submission SHALL begin the Handoff.
-5. FOR ALL sequence runs, THE Haunted_Page SHALL order the phases as first shake, second stronger shake, third-submission Glitch_Sequence, and Handoff, applying reduced-motion behavior when requested.
+4. FOR ALL sequences of submit actions, THE Haunted_Page SHALL count only valid submissions, play at most two shakes, and perform the Glitch_Sequence and Handoff at most once on the third valid submission.
+5. FOR ALL sequence runs, THE Haunted_Page SHALL order the phases as first shake, second shake, final Glitch_Sequence, then Handoff, applying reduced-motion behavior when that preference is enabled.
 6. FOR ALL Signup_Details, storing them to sessionStorage and reading them back SHALL produce equivalent Signup_Details.
 7. THE Haunted_Page SHALL execute and pass every PBT_Property suite as part of the project test command.

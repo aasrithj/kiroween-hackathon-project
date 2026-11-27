@@ -23,10 +23,10 @@ Implementation proceeds from verifiable game rules to presentation:
   - Preserve the existing browser flow and relative asset paths.
 
 - [ ] 1. Establish the escape page structure and configuration
-  - [ ] 1.1 Create `src/escape.html` and `src/escape.css` with a semantic page shell, loading view, live status region, persistent timer/tracker header, scene, object list, clue panel, and terminal overlays
+  - [ ] 1.1 Create `escape.html` and `escape.css` with a semantic page shell, loading view, live status region, persistent timer/tracker header, scene, object list, clue panel, and terminal overlays
     - Keep all content understandable if animation is unavailable
     - _Requirements: 1.1, 2.4, 4.1, 10.1_
-  - [ ] 1.2 Create `src/js/escape/` modules for `main.js`, `config.js`, `content.js`, `storage.js`, `logic/`, `ui/`, and `anim/`
+  - [ ] 1.2 Create `js/escape/` modules for `main.js`, `config.js`, `content.js`, `storage.js`, `logic/`, `ui/`, and `anim/`
     - Use ES modules and the local GSAP source already declared by the project; do not add another runtime dependency
     - _Requirements: 1.1, 1.4, 1.5_
   - [ ] 1.3 Define the single escape configuration
@@ -76,6 +76,12 @@ Implementation proceeds from verifiable game rules to presentation:
     - Enter `loading`, run the forward transition, then start a new attempt at `playing` with 420 seconds
     - Reload resets clues and demands; do not persist game state
     - _Requirements: 3.1, 3.4_
+  - [x] 3.3 Build the handoff arrival screen
+    - Add `escape.html` with an original, responsive atmospheric arrival state
+    - Connect the normal page's third-valid-submission black transition to the configured destination
+    - Add the shared-timeline zoom-out reveal for the arrival heading and the restrained pixel-tear overlay for the outgoing glitch
+    - Stop before timer, clue, demand, or jumpscare gameplay
+    - _Requirements: 1.1–1.4, 2.1–2.2, 3.1, 3.8, 10.1_
 
 - [ ] 4. Build the semantic scene and object panels
   - Create the forest-edge relay-station scene with five named objects: shortwave radio, breaker panel, notice board, cassette player, and gate
@@ -200,6 +206,7 @@ Implementation proceeds from verifiable game rules to presentation:
 }
 ```
 
+<<<<<<< HEAD
 - [x] 3.3 Add the handoff pixel breakup and arrival-title reveal
   - Layer sparse blocky tears into the third-submit glitch sequence.
   - Animate the original arrival heading from oversized and blurred to its resting state using the shared GSAP timeline.
@@ -215,3 +222,5 @@ Implementation proceeds from verifiable game rules to presentation:
 ## Current Delivery Boundary
 
 The active landing integration task now plays the silent title-sequence video at `www/escape.html` before the arrival screen. It uses `www/videos/title-sequence.webm` with `www/videos/title-sequence.mp4` fallback, a skip control, and immediate arrival for reduced motion or playback failure. The separate Stranger Things music autoplay attempt and sound toggle remain active on the arrival page. Do not mark the timer, clue, demand, or jumpscare tasks complete as part of the three-click signup handoff.
+=======
+>>>>>>> f0244bd470db10f735d1188681264ee56e46ef39

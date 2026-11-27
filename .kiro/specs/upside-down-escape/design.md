@@ -2,7 +2,11 @@
 
 ## Overview
 
+<<<<<<< HEAD
 Upside_Down_Escape is the second static page in the Nocturne Night experience. The normal landing page handles event information and signup; after its three-valid-submission sequence and black glitch handoff, it opens `www/escape.html` at the arrival screen. The escape page preserves the local session signup record, then presents a seven-minute supernatural puzzle hunt in the Trench of Horror: a sunken ravine around a deserted relay station. A nameless Demon communicates three demands through four clues. The visitor must discover all clues, fulfill all demands, and activate the gate before the timer reaches zero.
+=======
+Upside_Down_Escape is the second static page in the Nocturne Night experience. After the third valid invitation submission, a glitch and black handoff leads to `escape.html`. This implementation slice stops on an atmospheric arrival screen in the Trench of Horror: a sunken ravine around a deserted relay station. The full planned experience adds a seven-minute puzzle hunt, four clues, three Demon demands, and a gate; those mechanics do not start on the arrival screen yet.
+>>>>>>> f0244bd470db10f735d1188681264ee56e46ef39
 
 The design borrows broad atmospheric cues from 1980s supernatural adventure horror: ordinary equipment behaving strangely, an alternate landscape, a cold palette, haze, and suspense. All scene art, copy, puzzle content, and scare imagery are original. The web experience remains vanilla static files in `www/`; Capacitor supplies the native Android/iOS shell and syncs that same source directory into the native projects.
 
@@ -10,11 +14,15 @@ The design borrows broad atmospheric cues from 1980s supernatural adventure horr
 
 - **Static web stack:** HTML, CSS, plain JavaScript ES modules, browser APIs, and the project’s single declared GSAP source, all editable under `www/`. Capacitor 8 is the native wrapper, not a web UI framework or bundler.
 - **Pure game rules:** Escape reducer, timer, clue tracking, demand validation, and gate eligibility are independent of the DOM.
-- **One scene, one page:** `src/escape.html` owns the room. State changes replace scene panels and overlays without a framework router.
+- **One scene, one page:** `escape.html` owns the room. State changes replace scene panels and overlays without a framework router.
 - **Seven minutes:** The timer starts at exactly 420 seconds when `playing` begins. It uses an elapsed-time source rather than relying only on the number of interval callbacks.
 - **Fair demands:** Each demand becomes available when its supporting clue is found. The clue tells the visitor the exact operation and answer; the Demon’s voice adds tone without withholding necessary information.
 - **Scare with a safe fallback:** The jumpscare is an abstract silhouette snap-in with a short transform and opacity timeline. It avoids strobing, does not autoplay sound, and becomes a static result under reduced motion.
 - **Local-only data:** Signup details pass through the sessionStorage key documented by the haunted-page spec. Puzzle state lives only in memory.
+
+### Handoff Arrival Slice
+
+`escape.html` is the configured destination for the third valid signup submission. It presents a responsive, text-led arrival panel with an original signal-lost message and the cold, shadowed ravine atmosphere. Its heading uses an original outlined signal-red treatment and, when motion is allowed, scales down from beyond its resting size with a soft blur through the shared GSAP timeline module. The incoming landing transition uses sparse pixel-tear blocks over scanline bands before fading to black. It does not read personal data, start a timer, offer puzzle controls, or include a jumpscare. The separate game tasks remain the implementation plan for those features.
 
 ## Architecture
 
@@ -37,7 +45,7 @@ flowchart TB
 ### Project Layout
 
 ```text
-src/
+
   escape.html
   escape.css
   js/
@@ -280,6 +288,9 @@ Use transform and opacity for movement. Filter may be used for a brief static-to
 | 12 Privacy | `storage.js`, `main.js` |
 | 13–14 Kiro and PBT | spec docs, steering, tests |
 
+<<<<<<< HEAD
 ## Current Delivery Boundary
 
 The landing-page handoff opens `www/escape.html` with a full-viewport, silent 30.8-second title video. `www/videos/title-sequence.webm` is the preferred compact source and `www/videos/title-sequence.mp4` is the compatibility fallback. The video uses `autoplay muted playsinline`, scales with `object-fit: contain`, and has a visible Skip intro control. On `ended`, skip, media error, or rejected `play()` (including autoplay restrictions), the page continues to `./index.html?descend`, where the existing arrival scene is shown. With reduced motion, video playback is skipped and arrival opens immediately. The existing arrival title sequence runs there as before. The separate Stranger Things music audio continues its existing autoplay attempt and sound toggle behavior. This page does not initialize the Trench of Horror scene, timer, clue tracker, Demon interactions, or failure jumpscare.
+=======
+>>>>>>> f0244bd470db10f735d1188681264ee56e46ef39

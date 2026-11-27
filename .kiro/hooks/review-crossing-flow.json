@@ -4,10 +4,17 @@
     {
       "name": "Review the landing interactions and handoff",
       "trigger": "PostFileSave",
+<<<<<<< HEAD
       "matcher": "^(www/.*|README\\.md|package(-lock)?\\.json|capacitor\\.config\\.(json|ts)|scripts/.*\\.mjs|\\.kiro/specs/(spooky-haunting-ui|upside-down-escape)/.*\\.md|\\.kiro/steering/.*\\.md)$",
       "action": {
         "type": "agent",
         "prompt": "Review the saved file and related implementation against the Kiro requirements, design, steering, and README. Confirm that the module and fallback nightometers agree, normalize progress to the footer entry point, and reach 60 there with no valid fields; also confirm narrow-screen signup bottom spacing. Confirm that only valid invitation submissions count; attempts one and two show distinct messages with escalating shakes and unlock the form afterward; attempt three saves session details, glitches with restrained pixel-tear fragments, fades to black, and opens www/escape.html; and the existing arrival title sequence remains intact. Confirm the title video uses local WebM/MP4 sources, reaches arrival on ended/skip/error/rejected autoplay, and is bypassed for reduced motion. Confirm the separate Stranger Things audio autoplay attempt and sound toggle remain present, and that no escape game mechanics started. For Capacitor changes, confirm www/ is the single editable web source, capacitor.config.json points at it, the root app files have not been duplicated, and sync commands copy it into android/ and ios/ before launch. Report concrete mismatches only. Do not edit files or run tests automatically."
+=======
+      "matcher": "^(index\\.html|escape\\.html|README\\.md|script\\.js|style\\.css|haunting-fallback\\.js|js/.*\\.js|\\.kiro/specs/(spooky-haunting-ui|upside-down-escape)/.*\\.md|\\.kiro/steering/.*\\.md)$",
+      "action": {
+        "type": "agent",
+      "prompt": "Review the saved file and related implementation against the Kiro requirements, design, steering, and README. Confirm that the nightometer normalizes scroll progress to the footer entry point and reaches 60 there with no valid fields, with extra signup bottom spacing on narrow screens. Also confirm that only valid invitation submissions count; attempts one and two show distinct messages with escalating shakes and unlock the form afterward; invalid submissions play one quiet synthesized error cue each; attempt three saves session details, glitches with restrained pixel-tear fragments, fades to black, plays the original Web Audio crossing cue, and navigates to escape.html; the arrival heading uses the shared GSAP zoom-out reveal; reduced-motion and missing-GSAP paths remain usable; Web Audio failure degrades silently; and escape.html stops at the arrival screen without starting game mechanics. Check that no extra framework, external sound stream, or runtime dependency was introduced. Report concrete mismatches only. Do not edit files or run tests automatically."
+>>>>>>> f0244bd470db10f735d1188681264ee56e46ef39
       }
     }
   ]

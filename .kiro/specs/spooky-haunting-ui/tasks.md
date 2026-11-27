@@ -2,19 +2,20 @@
 
 ## Overview
 
-This plan implements the Haunted_Page described in `requirements.md` and `design.md`: a single scrolling Halloween event page built with only HTML, CSS, JavaScript, and GSAP. It ends with a signup form at the bottom that triggers a glitching error, an ominous mood, and a handoff to a separate escape experience.
+This plan implements the Haunted_Page described in `requirements.md` and `design.md`: a single scrolling Halloween event page built with only HTML, CSS, JavaScript, and GSAP. Three valid signup attempts escalate from shakes and messages to a black handoff into the escape arrival screen.
 
 The work is sequenced from the bottom up:
 
 1. Project scaffolding, Kiro steering, hooks, and linting.
 2. Pure-function logic (Haunting_Level, validation, sequence state machine, storage) with property-based tests, so the core behavior is verified before any UI exists.
 3. Static structure and styling (HTML and CSS design system).
-4. GSAP animation modules (foundation, ambient effects, Haunting_Level display, glitch, ominous mood, handoff).
+4. Shared GSAP timelines for the calm reveals, escalating shakes, final glitch, and black handoff.
 5. Signup form orchestration, the secret message button, accessibility, and performance work.
 6. Final integration and spec validation.
 
 ## Tasks
 
+<<<<<<< HEAD
 - [x] Add Capacitor 8 native packaging for Android and iOS
   - Install Capacitor core, CLI, Android, and iOS packages in the existing npm project.
   - Configure `www/` as the single editable web directory and native web directory; remove the duplicate web source files from the repository root.
@@ -27,6 +28,12 @@ The work is sequenced from the bottom up:
   - Add `package.json` with development-only dependencies (linters, test runner, property-based testing library); the page itself must have no runtime dependencies and no build step
   - Create `js/config.js` holding the Escape_Destination location constant, the sessionStorage key, timing limits, and the Ambient_Effect maximum
   - Create `js/content.js` holding all themed copy (error messages, hidden message, labels)
+=======
+- [ ] 1. Keep the existing static project structure and GSAP source
+  - Keep the landing and arrival pages at the project root with plain JavaScript modules in `js/`
+  - Keep the existing local GSAP source and avoid adding dependencies or a build step
+  - Keep the destination and motion timings in `js/config.js` and themed copy in `js/content.js`
+>>>>>>> f0244bd470db10f735d1188681264ee56e46ef39
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 7.2, 8.3_
 
 - [ ] 2. Set up Kiro steering, hooks, and tooling
@@ -34,18 +41,19 @@ The work is sequenced from the bottom up:
     - Create `.kiro/steering/design-language.md` covering color tokens, typography, motion principles, and component appearance
     - Create `.kiro/steering/code-conventions.md` with checkable rules for structure, file naming, CSS naming, testing, and the no-frameworks rule
     - _Requirements: 13.1, 13.2_
-  - [ ] 2.2 Configure linters
-    - Add ESLint, Stylelint, and an HTML validator configuration that enforce the steering rules
-    - _Requirements: 12.1, 13.3_
-  - [ ] 2.3 Create the Kiro hooks
-    - Add a PostFileSave hook in `.kiro/hooks/` that lints the saved file and blocks the change workflow on failure
-    - Add a SessionStart hook in `.kiro/hooks/` that verifies the GSAP source and development dependencies and blocks the session if any are missing
-    - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_
+  - [ ] 2.2 Keep source checks dependency-free
+    - Use the project's Kiro save hook for consistency review; do not add package tooling or a build step solely for linting
+    - _Requirements: 1.2, 12.1–12.3_
+  - [x] 2.3 Create the Kiro save-review hook
+    - Add `.kiro/hooks/review-crossing-flow.json` with a PostFileSave review of the signup transition, reduced motion, fallback behavior, and arrival scope
+    - Keep the hook report-only; do not run undeclared commands or modify files automatically
+    - _Requirements: 12.1–12.4_
 
 - [ ] 3. Implement pure-function logic modules
   - [ ] 3.1 Implement Haunting_Level computation
     - Create `js/logic/haunting.js` with `computeHauntingLevel`, `isIntense`, `ambientCount`, and `ambientSpeed`
     - Level is the rounded, capped sum of 60 times scroll progress and 40 times the valid-field ratio, as an integer from 0 to 100
+    - Normalize scroll progress to reach 1 as the footer enters the viewport; provide extra mobile bottom spacing below signup content
     - _Requirements: 4.1, 4.3, 4.4_
   - [ ]* 3.2 Write property tests for Haunting_Level
     - **Property 1: Haunting_Level is monotonic in its inputs**
@@ -57,10 +65,10 @@ The work is sequenced from the bottom up:
   - [ ]* 3.4 Write property tests for validation
     - **Property 3: Validation is deterministic and exact**
     - **Validates: Requirements 14.3**
-  - [ ] 3.5 Implement the sequence state machine
-    - Create `js/logic/sequence.js` with `initialState`, `reduce`, and `phaseLimitMs`, covering the phases idle, glitch, ominous, handoff, and done
-    - Ignore out-of-order events so the sequence and navigation run exactly once, and apply the reduced-motion limits
-    - _Requirements: 3.2, 5.6, 6.3, 7.3, 7.4, 10.2_
+  - [x] 3.5 Implement the three-attempt sequence state machine
+    - `js/logic/sequence.js` counts valid submissions only and transitions through ready, shaking, crossing, and done
+    - Ignore repeated or out-of-order events
+    - _Requirements: 5.5–5.7, 6.1, 7.1, 14.4, 14.5_
   - [ ]* 3.6 Write property tests for the sequence state machine
     - **Property 4: The sequence and handoff run exactly once**
     - **Property 5: Phases are ordered and bounded**
@@ -84,22 +92,22 @@ The work is sequenced from the bottom up:
 
 - [ ] 6. Implement the CSS design system
   - [ ] 6.1 Create design tokens and base styles
-    - Create `css/tokens.css` with custom properties for color (dark palette, at most three accents), typography, spacing, and easing
-    - Create `css/base.css` with reset, typography, and focus indicator styles
+    - Use the existing `style.css` custom properties for color, typography, spacing, and easing
+    - Keep reset, typography, and focus indicator styles in `style.css`
     - _Requirements: 2.2, 10.3_
   - [ ] 6.2 Style sections and components
-    - Create `css/sections.css` for the hero, details, signup, form, and secret message styling
+    - Style the hero, details, signup, form, and secret message in `style.css`
     - Ensure layouts work from 320 px to 1920 px without horizontal scrolling and keep text contrast at 4.5:1 or higher
     - _Requirements: 2.3, 2.6, 10.4_
   - [ ] 6.3 Style haunting effects
-    - Create `css/effects.css` for fog, spectral shapes, candles, vignette, scanlines, and the ominous color grade, using inline SVG where shapes are needed
+    - Style fog, spectral shapes, candles, vignette, scanlines, and the final crossing in `style.css`
     - _Requirements: 1.1, 2.5, 4.5, 6.4_
 
 - [ ] 7. Implement the GSAP animation foundation
   - [ ] 7.1 Create shared timeline utilities and the accessibility helper
     - Create `js/anim/timelines.js` as the single module that defines durations, easing, and timeline factories, with `getLimits(reducedMotion)`
-    - Apply the 2000 ms cap, the 3000 ms Ominous_Sequence exception, and the 300 ms reduced-motion cap
-    - Create `js/ui/a11y.js` exposing `prefersReducedMotion()` with a change listener and `announce(message)` for a polite ARIA live region
+    - Keep the 2000 ms animation cap and apply the 250 ms reduced-motion timing from `js/config.js`
+    - Keep reduced-motion detection and live-region announcements in `script.js`
     - _Requirements: 3.1, 3.2, 3.3, 3.6, 10.2, 10.5_
   - [ ] 7.2 Implement entrance and scroll reveals
     - Add the staggered Hero_Section text reveal and ScrollTrigger reveals for each section
@@ -115,41 +123,32 @@ The work is sequenced from the bottom up:
   - _Requirements: 2.5, 3.4, 3.5, 4.3, 4.4, 9.3_
 
 - [ ] 9. Implement the Haunting_Level display and status indicators
-  - Create `js/ui/haunting-display.js` connecting scroll progress and field validity to the Haunting_Level
+  - Keep the display wiring in `script.js`, connecting scroll progress and field validity to the Haunting_Level
+  - Reach 60 at the footer-entry point with no valid fields; add 20 for each valid field
   - Update the numeric display and the candle indicators (the non-color cues), and play the intensify timeline when the level increases
   - Apply the extra visual effect above level 75 and announce crossing 75 to screen readers
   - _Requirements: 3.4, 4.2, 4.3, 4.5, 10.5_
 
-- [ ] 10. Implement the Glitch_Sequence
-  - [ ] 10.1 Build the glitch timeline
-    - Create `js/anim/glitch.js` combining at least three effects from RGB split, horizontal jitter, screen tearing, scanlines, and text corruption
-    - Display the themed error message from `js/content.js` and complete within 2000 ms
-    - _Requirements: 6.1, 6.2, 6.3_
-  - [ ] 10.2 Add flash safety and the skip option
-    - Limit flashes to three per second, avoid large-area saturated red flashes, add a pre-warning, and provide a skip control that completes the glitch immediately
-    - _Requirements: 6.6, 10.7_
-  - [ ] 10.3 Add the reduced-motion fallback
-    - Replace the glitch with a static, non-flashing error state of at most 300 ms when reduced motion is enabled
-    - _Requirements: 10.1, 10.2_
+- [x] 10. Implement the escalating signup response
+  - First and second valid attempts play distinct messages and progressively stronger GSAP shakes; the form unlocks after each animation
+  - Invalid data does not increment the attempt count
+  - _Requirements: 5.3–5.6, 10.3, 10.5_
 
-- [ ] 11. Implement the Ominous_Sequence
-  - Create `js/anim/ominous.js` shifting the color grade, tightening the vignette, fading out the Signup_Form, and slowing Ambient_Effect motion within 3000 ms
-  - Keep the message visible for at least 1500 ms before the Handoff, including under reduced motion
-  - _Requirements: 6.4, 6.5, 3.2_
+- [x] 11. Implement the final glitch and handoff
+  - The third valid attempt stores the signup, plays the restrained glitch, fades the screen to black in at most 600 ms, and navigates to `escape.html`
+  - Keep skip, reduced-motion, and missing-GSAP paths usable
+  - _Requirements: 5.6–5.7, 6.1–6.6, 7.1–7.6, 10.1–10.7_
 
-- [ ] 12. Implement the Handoff transition
-  - Create `js/anim/handoff.js` playing a transition of at most 600 ms (300 ms with reduced motion) before navigation
-  - _Requirements: 7.3, 10.2_
+- [ ] 12. Review keyboard, screen-reader, and responsive behavior
+  - Confirm every interactive control remains keyboard operable, transition messages are announced, and the arrival screen remains readable at narrow widths
+  - _Requirements: 2.6, 10.3–10.7_
 
-- [ ] 13. Implement the Signup_Form behavior and sequence orchestration
-  - Create `js/ui/form.js` validating fields on blur and on submit, showing themed errors beside invalid fields, and focusing the first invalid field on rejection
-  - On valid submission, save Signup_Details, set the Haunting_Level to 100, and run the sequence by feeding events to the reducer and executing each returned command with the glitch, ominous, and handoff modules
-  - Disable the signup button and ignore further submissions while the sequence runs
-  - Navigate to the configured Escape_Destination when the reducer issues the navigate command, start the Handoff no later than 5600 ms after submit, and on back-forward cache restore show the calm initial state without replaying the sequence
-  - _Requirements: 4.6, 5.3, 5.4, 5.5, 5.6, 5.7, 7.1, 7.2, 7.4, 7.5, 7.6_
+- [ ] 13. Review the Kiro steering and save hook
+  - Confirm the PostFileSave hook reflects the footer threshold, attempt sequence, and arrival scope without adding or running undeclared tooling
+  - _Requirements: 11.1–11.4, 12.1–12.4, 13.1–13.3_
 
 - [ ] 14. Implement the Secret_Message_Button
-  - Create `js/ui/secret-message.js` revealing the hidden message with a timeline of at most 2000 ms and reading its copy from `js/content.js`
+  - Keep the Secret_Message_Button behavior in `script.js` and its copy in `js/content.js`
   - Close on second activation or the Escape key and return focus to the button
   - Announce the revealed message to screen readers
   - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
@@ -163,7 +162,7 @@ The work is sequenced from the bottom up:
     - Announce Haunting_Level crossing 75, validation errors, the Glitch_Sequence start, and the Handoff through ARIA live regions
     - _Requirements: 10.3, 10.5_
   - [ ] 15.3 Verify contrast at every state
-    - Check text contrast of at least 4.5:1 at each Haunting_Level and during the glitch and ominous states
+    - Check text contrast of at least 4.5:1 at each Haunting_Level and during the glitch and handoff
     - _Requirements: 10.4_
 
 - [ ] 16. Optimize performance
@@ -176,26 +175,43 @@ The work is sequenced from the bottom up:
   - _Requirements: 12.1, 13.3, 14.7_
 
 - [ ] 18. Final integration and spec validation
-  - Wire all modules together in `js/main.js`, including the GSAP load check and plugin registration, and run the full flow from landing to the Handoff in a browser
+  - Keep the existing browser entry in `script.js` and verify the flow from landing to the Handoff
   - Confirm every implemented feature traces to an acceptance criterion and run spec format validation on requirements.md, design.md, and tasks.md
   - Document how to run, test, and swap the Escape_Destination in `README.md`
   - _Requirements: 7.1, 11.1, 11.2, 11.3, 11.4_
 
-### Current landing handoff and footer threshold
+- [x] 19. Implement escalation and the escape arrival screen
+  - First and second valid submissions play progressively stronger shakes and distinct messages, then unlock the form again
+  - The third valid submission stores signup details, glitches the page, fades to black, and navigates to `escape.html`
+  - Include reduced-motion and missing-GSAP paths; stop at the original arrival screen before puzzle and timer gameplay
+  - _Requirements: 5.5–5.7, 6.1–6.6, 7.1–7.6, 10.1–10.7_
 
+<<<<<<< HEAD
 - [x] Update `js/logic/sequence.js` so valid submissions one and two advance through temporary shake states and the third enters the crossing state.
 - [x] Add two distinct messages, an escalating GSAP shake, and the third-submission glitch/fade handoff to `www/escape.html`.
 - [x] Normalize scroll progress to the footer-entry point in both the module and fallback implementations; add narrow-screen signup bottom spacing.
 - [x] Update the README, steering, and Kiro hook to document the three-click sequence, footer threshold, and arrival-only implementation boundary.
 - [x] Keep the existing arrival title sequence and its reduced-motion behavior intact after the final glitch handoff.
+=======
+- [x] 20. Add dependency-free signup and crossing sound cues
+  - Synthesize one quiet error cue for each rejected form submission and an original supernatural synth cue when the black handoff begins
+  - Use Web Audio only after user interaction, shorten the crossing cue for reduced motion, and continue silently if audio is unavailable
+  - Keep synthesized audio code in `js/audio/`; store any approved externally sourced audio assets locally in `audio/` with source and license details
+  - _Requirements: 1.1, 5.5, 7.7, 7.8_
+
+- [x] 21. Add pixel-tear crossing and arrival title reveal
+  - Add brief, sparse pixel-block breakup to the final glitch and reveal the original arrival title with a zoom-out settle through the shared GSAP timeline module
+  - Keep the heading visible without animation when GSAP is unavailable or reduced motion is preferred
+  - _Requirements: 6.1, 10.1, Upside Down Escape 3.9_
+>>>>>>> f0244bd470db10f735d1188681264ee56e46ef39
 
 ## Notes
 
 - Tasks marked with `*` are optional (tests) and can be skipped for a faster first pass, but the checkpoints expect the property tests to pass when they are present.
 - Each task references the specific requirements it satisfies, and each property test names the requirement it validates, so every feature traces back to `requirements.md`.
 - Property-based tests use the six properties defined in `design.md`, with at least 100 iterations each and a comment tag in the form `Feature: spooky-haunting-ui, Property N: <text>`.
-- The page has no runtime dependencies and no build step. `package.json` holds only development tooling (linters, test runner, property-based testing library).
-- The Escape_Destination is a single constant in `js/config.js`. This milestone implements only its arrival screen; the escape gameplay described by the separate spec remains future work.
+- The page has no runtime dependencies, package manifest, or build step.
+- The Escape_Destination is a single constant in `js/config.js`. The content and design of that destination belong to a separate spec and are not implemented in this plan.
 - Frame rate, load time, contrast, flash rate, keyboard walkthrough, and screen reader checks in tasks 15 and 16 are manual or browser-based and are not covered by automated tests.
 - All themed copy (error messages, the hidden message, labels) lives in `js/content.js` so wording can change without touching logic.
 

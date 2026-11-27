@@ -2,11 +2,15 @@
 
 ## Introduction
 
-Upside_Down_Escape is the playable second experience in Nocturne Night. After the visitor completes the haunted landing-page signup and its ominous handoff, the interface drops them into a hostile mirror-world: the Trench of Horror, a cold, decayed ravine around an abandoned relay station where a presence called the Demon speaks through radios, lights, and damaged signage. The visual direction is inspired by the tense 1980s supernatural atmosphere associated with *Stranger Things*: ordinary objects behaving strangely, an alternate dimension, practical-looking haze, and a sense that something is watching. The experience uses original characters, copy, puzzles, and visuals; it does not use show footage, logos, character likenesses, or dialogue.
+Upside_Down_Escape is the second experience in Nocturne Night. After three valid invitation submissions and the final glitching handoff, the visitor arrives at a threshold to a hostile mirror-world: the Trench of Horror, a cold, decayed ravine around an abandoned relay station where a presence called the Demon speaks through radios, lights, and damaged signage. The visual direction is inspired by the tense 1980s supernatural atmosphere associated with *Stranger Things*: ordinary objects behaving strangely, an alternate dimension, practical-looking haze, and a sense that something is watching. The experience uses original characters, copy, puzzles, and visuals; it does not use show footage, logos, character likenesses, or dialogue.
 
 The visitor has seven minutes (420 seconds) to discover four clues, satisfy three explicit demands from the Demon, and reach the gate. The demands are concrete puzzle interactions with deterministic answers supplied by clues. If time expires first, a brief GSAP-driven silhouette jumpscare plays, followed by a clear “You failed” state with retry and return options. If all demands are satisfied and the gate is activated in time, a success sequence returns the visitor to Nocturne Night.
 
+<<<<<<< HEAD
 Current implementation stops at the arrival screen after the landing-page handoff; gameplay remains future work. The web experience remains a static HTML, CSS, JavaScript, and GSAP project. Capacitor 8 may package the same static assets for Android and iOS through the configured `www/` web directory; it does not replace the web stack with a UI framework or bundler. Pure timer, puzzle, and state-transition logic is separated from DOM and animation code. No CSS utility library, 3D runtime, or network service is required.
+=======
+The complete site remains a static HTML, CSS, JavaScript, and GSAP project. Pure timer, puzzle, and state-transition logic is separated from DOM and animation code. No framework, CSS utility library, bundler, 3D runtime, or network service is required.
+>>>>>>> f0244bd470db10f735d1188681264ee56e46ef39
 
 ## Glossary
 
@@ -63,17 +67,20 @@ Current implementation stops at the arrival screen after the landing-page handof
 
 #### Acceptance Criteria
 
-1. WHEN the Normal_Dimension navigates to the configured Escape_Destination after its signup sequence, THE Upside_Down_Escape SHALL begin in `loading` and then enter `transitioning_in` before `playing`.
-2. THE Upside_Down_Escape SHALL read optional Registrant details from the `nocturne-night:signup` sessionStorage key documented by the Normal_Dimension without transmitting them to a network service.
-3. IF the expected signup data is missing or unreadable, THEN THE Escape_Dimension SHALL still allow a visitor to play and SHALL use a generic greeting.
+1. WHEN the Normal_Dimension navigates to the configured Escape_Destination after its third-valid-submission sequence, THE Upside_Down_Escape SHALL display its atmospheric arrival state. When the playable experience is implemented, it SHALL begin in `loading` and enter `transitioning_in` before `playing`.
+2. WHEN the playable escape experience is implemented, THE Upside_Down_Escape SHALL read optional Registrant details from the `nocturne-night:signup` sessionStorage key without transmitting them to a network service.
+3. WHEN the playable escape experience is implemented, IF the expected signup data is missing or unreadable, THEN THE Escape_Dimension SHALL still allow a visitor to play and SHALL use a generic greeting.
 4. THE Escape_State SHALL default to `loading` on every fresh load, and a reload during play SHALL start a fresh seven-minute attempt with no clues or demands completed.
 5. WHEN a valid escape succeeds, THE Upside_Down_Escape SHALL show a success message for at least three seconds and then perform a reverse Handoff to the Normal_Dimension.
 6. IF the reverse Handoff cannot navigate to its configured destination, THEN THE Upside_Down_Escape SHALL keep the success message visible and offer a working return link.
 7. THE Escape_State reducer SHALL ignore events that are illegal in its current state and SHALL never start failure or success sequences more than once per attempt.
 8. THE current implementation slice SHALL stop at the arrival state and SHALL NOT start the seven-minute timer or expose puzzle interactions until those game tasks are implemented.
 9. WHEN the arrival page loads with motion allowed and GSAP available, THE Escape_Dimension SHALL reveal its original arrival heading with a centered zoom-out settle from beyond its resting scale; without GSAP or with reduced motion, the heading SHALL remain immediately readable.
+<<<<<<< HEAD
 10. WHEN `www/escape.html` loads with motion allowed, THE page SHALL play the silent Nocturne Night title-sequence video using the WebM asset with an MP4 fallback, then navigate to the existing arrival scene when playback ends; a visible skip control, reduced-motion preference, playback error, or blocked autoplay SHALL navigate to arrival without trapping the visitor.
 11. THE title-sequence video SHALL fit the viewport without horizontal overflow, preserve its aspect ratio, and SHALL NOT include or replace the separate Stranger Things music track or its sound toggle.
+=======
+>>>>>>> f0244bd470db10f735d1188681264ee56e46ef39
 
 ### Requirement 4: Escape Environment and Interactable Objects
 
@@ -224,6 +231,9 @@ Current implementation stops at the arrival screen after the landing-page handof
 - The visual reference is atmospheric only. The implementation must use original copy, puzzles, silhouette design, and assets.
 - All interactive puzzle progress is in memory for one attempt. A page reload begins a fresh attempt; signup details remain in sessionStorage.
 
+<<<<<<< HEAD
 ## Current Delivery Boundary
 
 This spec records the planned Stranger-Things-inspired escape experience. The current landing-page milestone plays the silent title sequence in `www/escape.html`, then reveals the arrival screen and keeps its separate Stranger Things music autoplay and sound toggle. It stops before starting the seven-minute timer, clues, Demon demands, or jumpscare. Those mechanics remain future implementation work covered by the requirements below.
+=======
+>>>>>>> f0244bd470db10f735d1188681264ee56e46ef39
