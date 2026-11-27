@@ -6,7 +6,7 @@ export const copy = Object.freeze({
   secondAttempt: 'The walls are closing in. One more invitation may open the way.',
   glitch: 'The lights are going out. Something has noticed you.',
   secret:
-    'If the candles flicker <b>twice</b>, someone at the house is <b>thinking</b> of you. They may even save you the <b>last</b> slice of cake.',
+    '<b>Never</b> turn back, even if you need to. Outrunning the timer is <b>only</b> the beginning. If you fail, the party might even <b>end</b>...',
   handoff: 'Your place is saved. The night is only beginning…'
 });
 

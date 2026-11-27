@@ -11,6 +11,7 @@ import {
   closeUpScale,
   drift,
   intensity,
+  isSettled,
   letterMotion,
   masterAlpha,
   pullCamera,
@@ -31,12 +32,16 @@ const NEON = Object.freeze({
 });
 
 /**
- * Draws the Nocturne Night title sequence on a canvas.
- * elements: { canvas, bloom, haze, grain }. options: { onEnd({ skipped }) }.
+ * Draws the Nocturne Night title sequence on a canvas. It never ends: once the full title has
+ * resolved it stays on screen, pulsing gently, until destroy() is called.
+ * elements: { canvas, bloom, haze, grain, frame }. frame receives --title-bottom (px), the bottom
+ * edge of the resolved title, so text can sit underneath it.
+ * options: { onSettle() } runs once when the full title is on screen; { still } draws only that
+ * final frame, with no motion (reduced motion).
  * Returns { start, skip, destroy }.
  */
-export function createTitleSequence(elements, { onEnd } = {}) {
-  const { canvas, bloom, haze, grain } = elements;
+export function createTitleSequence(elements, { onSettle, still = false } = {}) {
+  const { canvas, bloom, haze, grain, frame: titleFrame } = elements;
   const ctx = canvas.getContext('2d');
   const bloomCtx = bloom.getContext('2d');
   const schedule = buildSchedule(TITLE_SHOTS, TITLE_TIMING);
@@ -47,14 +52,10 @@ export function createTitleSequence(elements, { onEnd } = {}) {
   let letters = [];
   let bounds = null;
   let startTime = 0;
-  let pausedAt = null;
   let frameId = 0;
   let running = false;
-  let finished = false;
-  let tabShown = !document.hidden;
-  // The canvas fills the viewport, so assume it is visible until the observer says otherwise.
-  let inView = true;
-  let observer = null;
+  let settled = false;
+  let settleTimer = 0;
 
   // Film grain: one noise tile that CSS moves around, so there is no per-frame work.
   const buildGrain = () => {
@@ -131,7 +132,7 @@ export function createTitleSequence(elements, { onEnd } = {}) {
     bounds = { x0, x1, y0, y1, w: x1 - x0, h: y1 - y0, cx: (x0 + x1) / 2, cy: (y0 + y1) / 2 };
   };
 
-  // Fit the whole title inside the letterboxed frame.
+  // Fit the whole title inside the frame, with room for the controls at the bottom.
   const fitScale = () => Math.min(width * 0.84 / bounds.w, height * 0.56 / bounds.h);
 
   // Layered strokes make the neon tube. Blur is faked by widening and dimming strokes.
@@ -236,59 +237,54 @@ export function createTitleSequence(elements, { onEnd } = {}) {
     bloomCtx.drawImage(canvas, 0, 0, bloom.width, bloom.height);
   };
 
-  const end = (skipped) => {
-    if (finished) return;
-    finished = true;
-    destroy();
-    onEnd?.({ skipped });
+  // Where the bottom of the resolved title sits on screen, for the text underneath it.
+  const publishTitleBottom = () => {
+    if (!bounds || !titleFrame) return;
+    const bottom = height / 2 + (bounds.y1 - bounds.cy) * fitScale();
+    titleFrame.style.setProperty('--title-bottom', `${Math.round(bottom)}px`);
   };
 
-  const frame = (now) => {
+  const settle = () => {
+    if (settled) return;
+    settled = true;
+    window.clearTimeout(settleTimer);
+    onSettle?.();
+  };
+
+  const clock = () => (still ? schedule.end : performance.now() - startTime);
+
+  // The sequence follows the wall clock, like the music, so it never pauses.
+  // Browsers stop drawing frames while the page is hidden (alt-tab, another desktop, a covering
+  // window). The clock keeps running, so on return the picture is wherever the music is.
+  const frame = () => {
     frameId = 0;
     if (!running) return;
-    if (!tabShown || !inView) {
-      // Record the pause so syncVisibility can resume from the same point.
-      if (pausedAt === null) pausedAt = now;
-      return;
-    }
 
-    const time = now - startTime;
-    drawAt(Math.min(time, schedule.finish));
-
-    if (time >= schedule.finish) {
-      end(false);
-      return;
-    }
-    frameId = window.requestAnimationFrame(frame);
+    const time = clock();
+    drawAt(time);
+    if (isSettled(schedule, time)) settle();
+    if (!still) frameId = window.requestAnimationFrame(frame);
   };
 
-  // Pause while the tab is hidden or the sequence is off screen.
-  const syncVisibility = () => {
-    if (!running) return;
-    const visible = tabShown && inView;
-
-    if (!visible && pausedAt === null) {
-      pausedAt = performance.now();
-      window.cancelAnimationFrame(frameId);
-      frameId = 0;
-    } else if (visible && pausedAt !== null) {
-      startTime += performance.now() - pausedAt;
-      pausedAt = null;
-      if (!frameId) frameId = window.requestAnimationFrame(frame);
-    }
-  };
-
+  // Redraw as soon as the page is visible again instead of waiting for the next scheduled frame.
   const onVisibility = () => {
-    tabShown = !document.hidden;
-    syncVisibility();
+    if (!running || document.hidden || still) return;
+    window.cancelAnimationFrame(frameId);
+    frameId = window.requestAnimationFrame(frame);
   };
 
   const handleResize = () => {
     resize();
-    if (bounds) layout();
+    if (!bounds) return;
+    layout();
+    publishTitleBottom();
+    // A still frame is not redrawn by the loop, so redraw it at the new size.
+    if (still && running) frame();
   };
 
   const start = async () => {
+    // Start the clock now, together with the music, not after the font loads.
+    startTime = performance.now();
     buildGrain();
     resize();
     if (document.fonts) {
@@ -300,31 +296,40 @@ export function createTitleSequence(elements, { onEnd } = {}) {
       }
     }
     layout();
+    publishTitleBottom();
 
-    if ('IntersectionObserver' in window) {
-      observer = new IntersectionObserver((entries) => {
-        inView = entries[entries.length - 1].isIntersecting;
-        syncVisibility();
-      }, { threshold: 0.2 });
-      observer.observe(canvas);
-    }
     document.addEventListener('visibilitychange', onVisibility);
     window.addEventListener('resize', handleResize);
 
     running = true;
-    startTime = performance.now();
+    if (still) {
+      frame();
+      return;
+    }
+    // Frames do not run while the page is hidden, so a timer makes sure the text and button
+    // still appear on time and are there when the visitor comes back.
+    settleTimer = window.setTimeout(settle, Math.max(0, schedule.end - clock()));
     frameId = window.requestAnimationFrame(frame);
   };
 
   const destroy = () => {
     running = false;
     window.cancelAnimationFrame(frameId);
-    observer?.disconnect();
+    window.clearTimeout(settleTimer);
     document.removeEventListener('visibilitychange', onVisibility);
     window.removeEventListener('resize', handleResize);
   };
 
-  const skip = () => end(true);
+  // Skip intro: jump the clock to the resolved title. It keeps pulsing from there.
+  const skip = () => {
+    if (settled) return;
+    startTime = performance.now() - schedule.end;
+    if (running && !still) {
+      window.cancelAnimationFrame(frameId);
+      frameId = window.requestAnimationFrame(frame);
+    }
+    settle();
+  };
 
   return { start, skip, destroy };
 }

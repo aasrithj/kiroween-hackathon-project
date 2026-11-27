@@ -33,9 +33,7 @@ export const TITLE_PULL_FROM = Object.freeze({ i: 4, fx: .50, fy: .40, z: 5 });
 export const TITLE_TIMING = Object.freeze({
   blackout: 2000,   // pure black before anything appears
   fadeIn: 1600,     // first close-up fades up from black
-  pull: 12000,      // long pull-back while the letters slide into place
-  hold: 2300,       // full title holds
-  fadeOut: 2600     // title fades to black before the arrival screen
+  pull: 12000       // long pull-back while the letters slide into place; the full title then stays
 });
 // ---------- The Underside (after the title sequence) ----------
 // Spline: paste each scene's exported URL (Export → Code → Vanilla JS → copy the .splinecode URL).

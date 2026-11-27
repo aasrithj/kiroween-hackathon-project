@@ -1,46 +1,45 @@
 import { createTimelines } from './anim/timelines.js';
+import { TIMING } from './config.js';
 import { createTitleSequence } from './title-sequence.js';
 import { createUnderside } from './underside/main.js';
 
 const $ = (selector) => document.querySelector(selector);
-const gsap = window.gsap;
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// ---------- Title sequence -> arrival screen ----------
+// ---------- Title sequence ----------
+// It never ends: once the full title has resolved it stays on screen, and the message and the
+// Go deeper button fade in underneath it.
 const titleSequence = $('#title-sequence');
-const arrivalScene = $('#arrival-scene');
-const arrivalTitle = $('#arrival-title');
+const titleFinale = $('#title-finale');
 const skipIntro = $('#skip-intro');
+let sequence = null;
 
-const timelines = gsap && !reducedMotion
-  ? createTimelines(gsap, reducedMotion, { arrivalTitle, arrivalScene, titleSequence })
-  : null;
-
-let introDone = false;
-
-const showArrival = () => {
-  if (introDone) return;
-  introDone = true;
-  titleSequence.hidden = true;
-  document.body.classList.remove('is-title-playing');
-  arrivalScene.hidden = false;
-
-  if (timelines) {
-    timelines.arrivalScene().play();
-    if (arrivalTitle) timelines.arrivalTitle().play();
-  }
+const showFinale = () => {
+  if (!titleFinale || !titleFinale.hidden) return;
+  titleFinale.hidden = false;
+  // Read layout once so the fade-in transition starts from opacity 0.
+  void titleFinale.offsetWidth;
+  titleFinale.classList.add('is-shown');
+  // Nothing left to skip: fade the button out, then remove it.
+  fadeOutSkip();
 };
 
-// A natural ending has already faded to black, so the arrival screen can appear at once.
-// Skipping mid-sequence fades the title out first.
-const leaveIntro = ({ skipped = false } = {}) => {
-  if (introDone) return;
-  if (skipped && timelines) {
-    timelines.introExit().eventCallback('onComplete', showArrival).play();
-  } else {
-    showArrival();
+function fadeOutSkip() {
+  if (!skipIntro || skipIntro.hidden) return;
+  const remove = () => { skipIntro.hidden = true; };
+  if (reducedMotion) {
+    remove();
+    return;
   }
-};
+  // Move keyboard focus somewhere useful before the button goes away.
+  if (document.activeElement === skipIntro) $('#descend')?.focus({ preventScroll: true });
+  skipIntro.classList.add('is-leaving');
+  skipIntro.addEventListener('transitionend', (event) => {
+    if (event.propertyName === 'opacity') remove();
+  });
+  // Fallback in case the transition event never fires (for example, a hidden tab).
+  window.setTimeout(remove, 1200);
+}
 
 // The other side lives on the same page as the invitation. It starts when the crossing finishes
 // (script.js), or straight away with ?descend in the URL.
@@ -67,44 +66,43 @@ export function beginTheOtherSide() {
 }
 
 function startTitle() {
-  if (!titleSequence || !arrivalScene) return;
-  // Reduced motion: no animated sequence, go straight to the arrival screen.
-  if (reducedMotion) {
-    showArrival();
-  } else {
-    document.body.classList.add('is-title-playing');
-    const sequence = createTitleSequence(
-      {
-        canvas: $('#title-canvas'),
-        bloom: $('#title-bloom'),
-        haze: $('#title-haze'),
-        grain: $('#title-grain')
-      },
-      { onEnd: leaveIntro }
-    );
+  if (!titleSequence) return;
+  document.body.classList.add('is-title-playing');
+  // Reduced motion: no animated sequence, just the finished title, the message and the button.
+  sequence = createTitleSequence(
+    {
+      canvas: $('#title-canvas'),
+      bloom: $('#title-bloom'),
+      haze: $('#title-haze'),
+      grain: $('#title-grain'),
+      frame: titleSequence
+    },
+    { onSettle: showFinale, still: reducedMotion }
+  );
 
-    skipIntro?.addEventListener('click', () => sequence.skip(), { once: true });
-    sequence.start().catch(showArrival);
-  }
+  skipIntro?.addEventListener('click', () => sequence.skip(), { once: true });
+  sequence.start().catch(showFinale);
 }
-
-
 
 // ---------- Sound ----------
 const arrivalAudio = $('#arrival-audio');
 const soundToggle = $('#sound-toggle');
-const soundLabel = $('#sound-label');
 
 function startSound() {
-  if (!arrivalAudio || !soundToggle || !soundLabel) return;
+  if (!arrivalAudio || !soundToggle) return;
+  // The button shows only an icon. Its name stays "Mute" and aria-pressed carries on/off,
+  // so screen readers hear "Mute, toggle button, pressed/not pressed".
   const updateToggle = () => {
     const isPlaying = !arrivalAudio.paused && !arrivalAudio.muted;
     const hasEnded = arrivalAudio.ended;
     const isOff = !hasEnded && !isPlaying;
+    const name = hasEnded ? 'Replay sound' : 'Mute';
 
-    soundLabel.textContent = hasEnded ? 'Replay sound' : isPlaying ? 'Sound: on' : 'Sound: off';
     soundToggle.classList.toggle('is-muted', isOff);
-    soundToggle.setAttribute('aria-pressed', String(isOff));
+    soundToggle.setAttribute('aria-label', name);
+    soundToggle.title = hasEnded ? name : isOff ? 'Sound off' : 'Sound on';
+    if (hasEnded) soundToggle.removeAttribute('aria-pressed');
+    else soundToggle.setAttribute('aria-pressed', String(isOff));
   };
 
   // Browsers often block sound until the visitor interacts (always on reload).
@@ -157,17 +155,23 @@ function startSound() {
 
 // ---------- Descent into the Underside ----------
 const descend = $('#descend');
-const descendGentle = $('#descend-gentle');
 let descending = false;
+// Matches the descent-turn animation in underside.css.
+const DESCENT_TURN_MS = 1100;
+const gsap = window.gsap;
+const titleGlitch = $('#title-glitch');
+const descentTimelines = gsap && titleGlitch
+  ? createTimelines(gsap, reducedMotion, {
+      glitchPixels: titleGlitch.querySelector('.glitch-overlay__pixels'),
+      glitchLines: titleGlitch.querySelectorAll('.glitch-overlay__line'),
+      glitchTarget: titleSequence,
+      shakeTarget: titleSequence
+    })
+  : null;
 
-if (reducedMotion) descendGentle?.setAttribute('data-recommended', 'true');
-
-const startDescent = (gentle) => {
+const startDescent = () => {
   if (descending) return;
   descending = true;
-  // Full screen, so nothing outside the world is visible. Browsers allow this only on a click.
-  const root = document.documentElement;
-  (root.requestFullscreen?.({ navigationUI: 'hide' }) ?? root.webkitRequestFullscreen?.())?.catch?.(() => {});
   window.__nocturneLenis?.destroy?.();
   document.documentElement.classList.remove('has-lenis', 'lenis', 'lenis-smooth');
 
@@ -182,17 +186,47 @@ const startDescent = (gentle) => {
     }, 60);
   }
   soundToggle?.setAttribute('hidden', '');
-  document.body.classList.add('is-descending');
 
-  const underside = createUnderside({ gentle: gentle || reducedMotion });
-  setTimeout(() => {
-    arrivalScene.hidden = true;
-    underside.start();
-  }, reducedMotion ? 1200 : 1650);
+  // Gentle mode has no button any more; reduced-motion visitors still get it automatically.
+  const underside = createUnderside({ gentle: reducedMotion });
+
+  // Glitch first (the same one as the third RSVP), then the title turns over (CSS descent-turn),
+  // then the Underside starts.
+  const turnOver = () => {
+    document.body.classList.remove('is-glitching', 'is-shaking--third');
+    gsap?.set(titleSequence, { clearProps: 'filter,x,y,transform' });
+    document.body.classList.add('is-descending');
+    setTimeout(() => {
+      sequence?.destroy();
+      titleSequence.hidden = true;
+      document.body.classList.remove('is-title-playing');
+      underside.start();
+    }, reducedMotion ? 1200 : DESCENT_TURN_MS);
+  };
+
+  // Reduced motion: no glitch, just the short fade.
+  if (reducedMotion) {
+    turnOver();
+    return;
+  }
+
+  // The strongest shake (the third RSVP's) runs at the same time as the glitch, as on the signup.
+  // The title turns over once both have finished.
+  const glitch = descentTimelines?.glitch();
+  const shake = descentTimelines?.shake(3);
+  if (glitch && shake) {
+    let pending = 2;
+    const done = () => { pending -= 1; if (pending === 0) turnOver(); };
+    glitch.eventCallback('onComplete', done).play();
+    shake.eventCallback('onComplete', done).play();
+  } else {
+    // No GSAP: the CSS pixel tear and shake run on their own.
+    document.body.classList.add('is-glitching', 'is-shaking--third');
+    setTimeout(turnOver, TIMING.shakeThird);
+  }
 };
 
-descend?.addEventListener('click', () => startDescent(false));
-descendGentle?.addEventListener('click', () => startDescent(true));
+descend?.addEventListener('click', startDescent);
 
 // ?descend skips the invitation and starts on the other side (handy for demos and testing).
 if (new URLSearchParams(location.search).has('descend')) {

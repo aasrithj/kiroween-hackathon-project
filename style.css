@@ -1,4 +1,4 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
 
 :root {
   color-scheme: dark;
@@ -55,8 +55,8 @@ button, input {
 }
 
 ::selection {
-  background-color: #ef8b50 !important;
-  color: #ffffff !important;
+  background-color: #ef8b50;
+  color: #ffffff;
 }
 
 .skip-link {
@@ -1078,7 +1078,7 @@ h1, h2, h3, p {
   margin-bottom: 1.7rem;
   color: #d7c9d9;
   font-size: 1rem;
-  line-height: 1.5;
+  line-height: 1.8;
 }
 
 .site-footer {
@@ -1847,84 +1847,18 @@ body.is-crossing .handoff-overlay,
   .handoff-overlay.is-visible { transition-duration: .25s; }
 }
 
-.escape-arrival {
-  overflow-y: hidden;
-  display: grid;
-  min-height: 100svh;
-  place-items: center;
-  padding: clamp(2rem, 8vw, 7rem);
-  overflow: hidden;
-  background:
-    radial-gradient(ellipse at 50% 120%, rgba(135, 34, 55, .25), transparent 58%),
-    linear-gradient(180deg, #09090e 0%, #120e18 55%, #08080c 100%);
-  color: #f0e9e6;
-  text-align: center;
-}
-
-.escape-arrival__content {
-  width: min(100%, 760px);
-  animation: arrival-emerge 1.2s ease both;
-}
-
-.escape-arrival__signal {
-  margin: 0 0 1.5rem;
-  color: #d58062;
-  font-size: .72rem;
-  font-weight: 600;
-  letter-spacing: .22em;
-  text-transform: uppercase;
-}
-
-.escape-arrival h1 {
-  margin: 0 auto;
-  font-family: var(--serif, Georgia, serif);
-  font-size: clamp(3.5rem, 12vw, 8rem);
-  font-weight: 500;
-  letter-spacing: -.055em;
-  color: #f2e5e2;
-  text-transform: uppercase;
-  /* A tight shadow stands in for text-stroke, which shows Playfair's overlapping contours as stray lines. */
-  text-shadow:
-    0 0 1px rgba(222, 57, 62, .85),
-    0 0 10px rgba(230, 40, 50, .9),
-    0 0 22px rgba(205, 27, 40, .42);
-}
-
-.escape-arrival__message {
-  max-width: 34rem;
-  margin: 1.5rem auto 0;
-  color: #c3b8c3;
-  font-size: clamp(1rem, 2.5vw, 1.25rem);
-  line-height: 1.7;
-}
-
-@keyframes arrival-emerge {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .title-sequence__grain { animation: none; }
-  .escape-arrival__content { animation: none; }
+  .title-sequence__message,
+  .title-sequence__deeper { transition: none; }
   body.is-shaking--first main,
   body.is-shaking--second main,
   body.is-shaking--third main { animation: none; }
 }
 
-.escape-orb-elements {
-  -webkit-user-select: none;
-  user-select: none;
-  -webkit-user-drag: none;
-  display: flex;
-  flex-direction: row;
-  gap: 0.5rem;
-  transform: translate(-42rem, -36rem) rotate(-10deg);
-}
-
-/* Title sequence on escape.html (drawn by js/title-sequence.js).
-   Look: one red hue on black, thin letterbox bars, soft bloom, faint grain. */
+/* Title sequence (drawn by js/title-sequence.js). Fills the whole viewport, edge to edge.
+   Look: one red hue on black, soft bloom, faint grain. */
 .title-sequence {
-  --letterbox: clamp(1.25rem, 6svh, 3.5rem);
   position: fixed;
   z-index: 10;
   inset: 0;
@@ -1932,24 +1866,7 @@ body.is-crossing .handoff-overlay,
   background: #000;
 }
 
-/* Cinematic letterbox bars */
-.title-sequence::before,
-.title-sequence::after {
-  content: '';
-  position: absolute;
-  z-index: 1;
-  left: 0;
-  right: 0;
-  height: var(--letterbox);
-  background: #000;
-  pointer-events: none;
-}
-
-.title-sequence::before { top: 0; }
-.title-sequence::after { bottom: 0; }
-
-.title-sequence[hidden],
-.escape-arrival[hidden] { display: none; }
+.title-sequence[hidden] { display: none; }
 
 .title-sequence__canvas,
 .title-sequence__bloom {
@@ -2000,30 +1917,130 @@ body.is-crossing .handoff-overlay,
   83% { transform: translate(-8%, -5%); }
 }
 
-/* Controls sit just above the bottom letterbox bar */
+/* The end of the intro: message and Go deeper under the resolved title, which stays on screen.
+   js/title-sequence.js sets --title-bottom to the title's bottom edge. */
+.title-sequence__finale {
+  position: absolute;
+  z-index: 2;
+  top: calc(var(--title-bottom, 72%) + clamp(1.25rem, 4svh, 2.75rem));
+  left: 50%;
+  /* Wide enough for the message on one line; never wider than the screen. */
+  width: min(60rem, calc(100% - 2 * var(--space)));
+  transform: translateX(-50%);
+  display: grid;
+  justify-items: center;
+  gap: clamp(1rem, 3svh, 1.75rem);
+  text-align: center;
+}
+
+.title-sequence__finale[hidden] { display: none; }
+
+.title-sequence__message {
+  margin: 0;
+  font: 400 clamp(.95rem, 1.6vw, 1.15rem)/1.6 Georgia, serif;
+  letter-spacing: .03em;
+  color: rgba(255, 120, 105, .82);
+  text-shadow: 0 0 12px rgba(255, 43, 28, .35);
+  /* One line where it fits; on narrow screens, two lines of similar length. */
+  text-wrap: balance;
+  opacity: 0;
+  transition: opacity 1.5s ease;
+}
+
+/* Thin red outline, small spaced serif capitals, fades in after the message. */
+.title-sequence__deeper {
+  min-height: 44px;
+  padding: 0 22px;
+  border: 1px solid rgba(255, 43, 43, .45);
+  background: none;
+  color: rgba(255, 90, 90, .85);
+  font: 600 12px/1 Georgia, serif;
+  letter-spacing: .25em;
+  text-transform: uppercase;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 1.5s ease .8s, background .3s ease;
+}
+
+.title-sequence__deeper:hover {
+  background: rgba(255, 43, 43, .12);
+}
+
+.title-sequence__deeper:focus-visible {
+  outline: 2px solid rgba(255, 90, 90, .85);
+  outline-offset: 3px;
+  background: rgba(255, 43, 43, .12);
+}
+
+.title-sequence__finale.is-shown .title-sequence__message,
+.title-sequence__finale.is-shown .title-sequence__deeper {
+  opacity: 1;
+}
+
 .title-sequence__skip {
   position: absolute;
   left: var(--space);
-  bottom: calc(var(--letterbox) + 1rem);
+  bottom: 1.5rem;
   z-index: 2;
+  min-height: 51px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: #ef8b50;
+  border: 2px solid #ef8b50;
+  border-radius: 0.8rem;
+  corner-shape: squircle;
+  padding: .9rem 1.2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
 }
 
-/* Sound toggle on escape.html */
+.title-sequence__skip:hover {
+  background-color: #ef8b50;
+  color: #1b1112;
+  transform: scale(1.025);
+}
+
+.title-sequence__skip:active {
+  transform: scale(0.99);
+}
+
+/* When the intro is done, the button fades out before it is removed (js/arrival.js). */
+.title-sequence__skip.is-leaving {
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease, opacity 0.9s ease;
+}
+
+.nocturne-buttons {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 1.5rem;
+}
+
+/* display: flex above would otherwise override the hidden attribute. */
+.nocturne-buttons[hidden] { display: none; }
+
+/* Sound toggle: icon only (speaker with waves = on, speaker with a cross = off) */
 .escape-sound-toggle {
   position: fixed;
   right: var(--space);
   bottom: 1.5rem;
   z-index: 20;
-  gap: .7rem;
-  padding: .8rem 1.3rem;
+  width: 48px;
+  height: 48px;
+  min-height: 48px;
+  padding: 0;
   border: 0;
-  border-radius: 999px;
+  border-radius: 50%;
   corner-shape: round;
-  font-family: var(--sans);
 }
 
-body.is-title-playing .escape-sound-toggle {
-  bottom: calc(clamp(1.25rem, 6svh, 3.5rem) + 1rem);
+.escape-sound-toggle .sound-icon {
+  width: 22px;
+  height: 22px;
 }
 
 .escape-sound-toggle:focus-visible {

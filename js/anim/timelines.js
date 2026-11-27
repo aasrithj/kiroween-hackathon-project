@@ -42,7 +42,8 @@ export function createTimelines(gsap, reducedMotion, elements = {}) {
       return gsap.timeline().to({}, { duration: duration(TIMING.reduced) });
     }
 
-    return gsap.timeline().to(document.body, {
+    // The signup shakes the whole page; the intro passes its own element.
+    return gsap.timeline().to(elements.shakeTarget ?? document.body, {
       x: distance,
       y: verticalDistance,
       duration: duration(durationMs / 8),
@@ -80,7 +81,8 @@ export function createTimelines(gsap, reducedMotion, elements = {}) {
           '-=0.05'
         )
         .to(
-          document.documentElement,
+          // The signup glitch shifts the whole page; the intro glitch passes its own element.
+          elements.glitchTarget ?? document.documentElement,
           {
             filter: 'hue-rotate(18deg)',
             duration: 0.08,
@@ -121,29 +123,6 @@ export function createTimelines(gsap, reducedMotion, elements = {}) {
       ease: 'sine.inOut'
     });
 
-  // Arrival screen text: a plain fade in, no scale or blur.
-  const arrivalTitle = () => gsap
-    .timeline()
-    .fromTo(
-      elements.arrivalTitle,
-      { opacity: 0 },
-      { opacity: 1, duration: duration(1800), ease: 'power1.out' }
-    );
-
-  // Arrival screen rises out of black after the title sequence.
-  const arrivalScene = () => gsap
-    .timeline()
-    .fromTo(
-      elements.arrivalScene,
-      { opacity: 0 },
-      { opacity: 1, duration: duration(1200), ease: 'power1.out', clearProps: 'opacity' }
-    );
-
-  // Skipping the title sequence: a short fade out instead of the full fade to black.
-  const introExit = () => gsap
-    .timeline()
-    .to(elements.titleSequence, { opacity: 0, duration: duration(600), ease: 'power1.out' });
-
   return {
     entrance,
     reveal,
@@ -151,9 +130,6 @@ export function createTimelines(gsap, reducedMotion, elements = {}) {
     glitch,
     ominous,
     handoff,
-    ambient,
-    arrivalTitle,
-    arrivalScene,
-    introExit
+    ambient
   };
 }

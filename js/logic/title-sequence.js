@@ -17,10 +17,10 @@ export const hash = (a, b) => {
 
 /**
  * Lays the sequence out on one clock (ms from page start):
- * black -> fade in -> close-ups joined by hard cuts -> pull-back -> hold -> fade to black.
+ * black -> fade in -> close-ups joined by hard cuts -> pull-back -> the full title, held forever.
  */
 export function buildSchedule(shots, timing) {
-  const { blackout, fadeIn, pull, hold, fadeOut } = timing;
+  const { blackout, fadeIn, pull } = timing;
   let elapsed = blackout;
   const scheduled = shots.map((shot) => {
     const start = elapsed;
@@ -29,7 +29,6 @@ export function buildSchedule(shots, timing) {
   });
   const pullStart = elapsed;
   const end = pullStart + pull;
-  const holdEnd = end + hold;
 
   return {
     shots: scheduled,
@@ -37,10 +36,8 @@ export function buildSchedule(shots, timing) {
     fadeIn,
     pullStart,
     pull,
+    // The title is fully resolved here and stays on screen from then on.
     end,
-    holdEnd,
-    fadeOut,
-    finish: holdEnd + fadeOut,
     driftEnd: pullStart + pull * 0.95
   };
 }
@@ -49,12 +46,11 @@ export function buildSchedule(shots, timing) {
 export const shotAt = (schedule, time) => schedule.shots
   .find((shot) => time >= shot.start && time < shot.start + shot.d) ?? null;
 
-// Whole-frame brightness: black opening, fade in, fade to black at the end.
-export function masterAlpha(schedule, time) {
-  const fadeInAlpha = smooth((time - schedule.blackout) / schedule.fadeIn);
-  const fadeOutAlpha = 1 - smooth((time - schedule.holdEnd) / schedule.fadeOut);
-  return fadeInAlpha * fadeOutAlpha;
-}
+// Whole-frame brightness: black opening, then a fade in. Nothing fades out; the title stays.
+export const masterAlpha = (schedule, time) => smooth((time - schedule.blackout) / schedule.fadeIn);
+
+// True once the pull-back has finished and the full title is on screen.
+export const isSettled = (schedule, time) => time >= schedule.end;
 
 // Each letter starts out of place and slides home. Offsets are stable per letter index.
 export function letterMotion(index) {
@@ -72,11 +68,13 @@ export function drift(letter, time, schedule) {
   return { x: letter.dx * k, y: letter.dy * k, s: lerp(1, letter.ds, k) };
 }
 
-// Steady light with a slow breath; no flicker. Brightens a little as the title resolves.
+// Steady light with a slow breath; no flicker. Brightens a little as the title resolves,
+// then pulses gently for as long as the title stays on screen.
 export function intensity(letter, time, schedule) {
   const breath = 0.92 + 0.05 * Math.sin(time / 1600 + letter.phase);
   const resolve = 1 + 0.12 * smooth((time - schedule.pullStart) / schedule.pull);
-  return breath * resolve;
+  const pulse = time > schedule.end ? 1 + 0.1 * Math.sin((time - schedule.end) / 900) : 1;
+  return breath * resolve * pulse;
 }
 
 export function shotCamera(shot, letters, time, fit, schedule) {
