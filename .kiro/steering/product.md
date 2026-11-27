@@ -1,32 +1,11 @@
-﻿---
+---
 inclusion: always
 ---
 
-# Project: Upside Down Escape
+# Product: Nocturne Night
 
-## Overview
-Dual-dimension Halloween web application for the Kiroween 2026 Hackathon (Costume Contest / Haunting UI track).
+NocturneNight is a Halloween gathering invitation built for the Kiroween 2026 Costume Contest / Haunting UI track. It starts as a polished, calm invitation and grows uncanny as visitors scroll and complete the guest list. Valid fields light candles and progress drives the haunting level. The first two valid invitation submissions trigger escalating shakes and distinct messages; the third triggers a restrained glitch, a fade to black, and navigation to the `escape.html` arrival screen.
 
-## Tech Stack
-- Framework: Next.js 14 (App Router) with TypeScript
-- Styling: Tailwind CSS 3
-- Animation: GSAP 3 with @gsap/react (useGSAP hook)
-- 3D: Spline (@splinetool/react-spline) with fallback
-- State: Zustand 4 with persist middleware
-- Audio: Web Audio API (synthesized, no audio files)
-- Testing: Vitest + fast-check (PBT) + React Testing Library
-- Canvas: 2D Canvas with requestAnimationFrame for particle effects
+The current Stranger-Things-inspired slice ends at the original atmospheric arrival screen. Do not implement the seven-minute timer, clue hunt, demands, gate, or jumpscare until those game tasks are in scope. Keep all language, puzzles, and visual assets original; use broad supernatural suspense cues without copying another project's text, visuals, or exact interactions.
 
-## Architecture
-- Strict logic/UI boundary: pure TypeScript functions in src/logic/ for state machines, timers, clue tracking, and validation
-- Presentation layer in src/components/ handles all React, GSAP, Spline, Canvas, and Web Audio
-- Zustand store in src/store/ wires logic to presentation
-
-## Code Conventions
-- Use EARS-pattern requirement references in comments (e.g., _Requirements: 3.3_)
-- Use TypeScript strict mode
-- Prefer functional React components with hooks
-- Use useGSAP() hook for all GSAP animations with proper cleanup
-- Use Tailwind utility classes for styling; extend theme via tailwind.config.ts
-- All interactive elements must have min 44x44px target size
-- All non-decorative images/3D must have alt/aria-label
+Signup data stays in sessionStorage for this browser session and is never sent to a server.

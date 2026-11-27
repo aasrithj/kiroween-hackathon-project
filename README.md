@@ -1,61 +1,26 @@
-﻿# Upside Down Escape
+# Nocturne Night
 
-A dual-dimension, Halloween-themed web application built for the Kiroween 2026 Hackathon (Costume Contest / Haunting UI track).
+A responsive Halloween gathering invitation for Kiroween’s haunting UI track. The page begins as a polished event landing page and grows more unsettling as visitors scroll and interact with the guest list.
 
-## What It Is
+## Run it
 
-A polished Halloween event landing page where users sign up for a spooky event. But hidden at the bottom is a tempting button that transports the user into a Stranger Things-inspired "Upside Down" dimension -- a dark escape room where they must discover clues and find the exit before the timer runs out. Fail, and they get jumpscared.
+Serve the project root with any static HTTP server, then open `/` or `/index.html`. The JavaScript uses ES modules, so it must be served over HTTP rather than opened with `file://`. There is no build step or framework. GSAP is included as `gsap.min.js`; Lenis is loaded from the pinned CDN URL in `index.html`. Fonts use Google Fonts with system fallbacks.
 
-## Tech Stack
+## Experience
 
-- Next.js 14 (App Router) + TypeScript
-- Tailwind CSS -- styling and responsive design
-- GSAP -- cinematic dimension transitions and scroll animations
-- Spline -- 3D hero element (with animated fallback)
-- Zustand -- state management
-- Web Audio API -- synthesized sound effects (no audio files needed)
-- Canvas/WebGL -- particle effects in the Upside Down
-- fast-check -- property-based testing for the pure logic layer
-- Vitest + React Testing Library -- unit and integration tests
+- The landing page has a hero, event story, event details, guest-list signup section, and footer.
+- The nightometer combines scroll progress and field completion. Scrolling to just above the footer fills the scroll portion to **60** even with both fields empty; a valid name and email add up to **40** more, for a maximum of 100. On small screens, extra space below the signup form provides a comfortable scroll runway.
+- The form validates locally. Only valid submissions count toward its three-step haunting: the first two trigger distinct messages and escalating screen shakes, and the third saves the details to session storage and starts a restrained glitch followed by a fade to black.
+- The final glitch briefly breaks into blocky pixel tears before the handoff; the arrival title settles in from an oversized, blurred state. Both use the existing GSAP runtime and reduce to a static, readable state for reduced-motion visitors.
+- Invalid submissions play a brief, quiet error cue. The final crossing plays an original, Stranger-Things-inspired synth tone made with the browser's Web Audio API; it is not the show's theme or a recording. Audio starts from the submit interaction, uses no external assets or dependencies, and shortens for reduced-motion users.
+- The third submission opens `escape.html`, an original, Stranger-Things-inspired supernatural arrival screen. This slice stops at the arrival; the clue hunt, Demon demands, timer, and escape gameplay are not implemented yet.
+- The responsive navigation becomes a hamburger menu below 500 px. It closes when a link is selected, Escape is pressed, or the visitor clicks outside it.
+- A discreet “note from the house” reveals a hidden message.
+- Reduced-motion preferences suppress continuous motion and shaking, and use a brief static handoff.
 
-## Getting Started
+Signup details are stored only in `sessionStorage` under `nocturne-night:signup`; the form does not send them to a server. If GSAP is unavailable, CSS and timeout fallbacks keep the signup flow usable. If Web Audio is unavailable or blocked, the experience continues without sound. Synthesized sound code lives in `js/audio/`; any approved external audio files should be stored locally in `audio/` with their source and license documented.
 
-1. Install dependencies: `npm install`
-2. Start the development server: `npm run dev` (then open http://localhost:3000)
-3. Run tests: `npm test`
-4. Build for production: `npm run build`
+## Project guidance
 
-## How Kiro Was Used
+The Kiro requirements, design, and task documents live under `.kiro/specs/`. Project conventions are in `.kiro/steering/`, and `.kiro/hooks/review-crossing-flow.json` reviews relevant file saves for consistency with the three-step handoff and arrival-screen scope.
 
-### Spec-Driven Development
-The entire project was built using Kiro spec-driven workflow:
-- Requirements: 13 EARS-pattern requirements covering both dimensions, transitions, escape mechanics, jumpscare, responsive design, accessibility, and performance
-- Design: Layered architecture with pure logic layer (state machines, timer, clue engine, signup validator) separated from presentation layer, 9 correctness properties for PBT
-- Tasks: 16 epics with 58 leaf tasks across 17 dependency waves
-
-### Steering
-Custom steering files in .kiro/steering/ guided Kiro responses with project-specific conventions and tech stack preferences.
-
-### Property-Based Testing
-9 correctness properties validated with fast-check, covering the dimension state machine, timer engine, clue discovery, and signup validation.
-
-## Project Structure
-
-```
-src/
-  app/              Next.js App Router (layout, page, globals.css)
-  logic/            Pure logic layer (testable via PBT)
-  store/            Zustand store with persistence
-  audio/            Web Audio API sound synthesis
-  components/
-    normal/         Normal Dimension (Halloween landing page)
-    transition/     Cinematic dimension transition overlay
-    upside-down/    Upside Down escape room
-  types/            Shared TypeScript types
-  lib/              Escape room data
-  test/             PBT test suite
-```
-
-## License
-
-MIT
