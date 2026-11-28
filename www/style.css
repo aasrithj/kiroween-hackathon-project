@@ -1972,7 +1972,7 @@ body.is-crossing .handoff-overlay,
 }
 
 .title-sequence__finale.is-shown .title-sequence__deeper {
-  margin-top: 1rem;
+  margin-top: 0.25rem;
 }
 
 .title-sequence__skip {
