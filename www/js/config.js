@@ -1,5 +1,4 @@
 export const SIGNUP_STORAGE_KEY = 'nocturne-night:signup';
-export const ESCAPE_DESTINATION = './escape.html';
 export const MAX_ATTEMPTS = 3;
 
 export const MAX_AMBIENT_EFFECTS = 8;
@@ -12,7 +11,7 @@ export const TIMING = Object.freeze({
   handoff: 700,
   reduced: 250
 });
-// Title sequence on escape.html. Times are in milliseconds.
+// Title sequence (canvas, js/title-sequence.js). Times are in milliseconds.
 export const TITLE_FONT = '"Playfair Display", Georgia, serif';
 export const TITLE_LINES = Object.freeze([
   Object.freeze({ text: 'NOCTURNE', size: 200, track: 8 }),

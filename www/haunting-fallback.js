@@ -85,7 +85,7 @@
 
     if (!nameInput || !emailInput || !scoreElement || !meterElement) return;
 
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{3,}$/;
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
     function update(scrollPositionOverride) {
       const scroller = document.scrollingElement || root;

@@ -1,4 +1,4 @@
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{3,}$/;
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 export function validateName(value) {
   const name = String(value ?? '').trim();
 

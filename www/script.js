@@ -147,7 +147,7 @@ if (form) {
     }
     $('.candles__caption').textContent = candleCaption;
 
-    if (isIntense(level) && !updateHaunting.wasIntense) {
+    if (isIntense(level) && !updateHaunting.wasIntense && state.attempts === 0) {
       announce('The night is growing more intense.');
     }
 
@@ -258,7 +258,7 @@ if (form) {
     const beginHandoff = () => {
       document.body.classList.remove('is-glitching');
       document.body.classList.add('is-crossing');
-      announce(copy.arrival);
+      announce(copy.handoff);
       const handoffTimeline = timeline?.handoff();
 
       if (handoffTimeline) {

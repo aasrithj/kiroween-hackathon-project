@@ -2,295 +2,234 @@
 
 ## Overview
 
-<<<<<<< HEAD
-Upside_Down_Escape is the second static page in the Nocturne Night experience. The normal landing page handles event information and signup; after its three-valid-submission sequence and black glitch handoff, it opens `www/escape.html` at the arrival screen. The escape page preserves the local session signup record, then presents a seven-minute supernatural puzzle hunt in the Trench of Horror: a sunken ravine around a deserted relay station. A nameless Demon communicates three demands through four clues. The visitor must discover all clues, fulfill all demands, and activate the gate before the timer reaches zero.
-=======
-Upside_Down_Escape is the second static page in the Nocturne Night experience. After the third valid invitation submission, a glitch and black handoff leads to `escape.html`. This implementation slice stops on an atmospheric arrival screen in the Trench of Horror: a sunken ravine around a deserted relay station. The full planned experience adds a seven-minute puzzle hunt, four clues, three Demon demands, and a gate; those mechanics do not start on the arrival screen yet.
->>>>>>> f0244bd470db10f735d1188681264ee56e46ef39
+Upside_Down_Escape is everything after the invitation's third valid submission. It runs on the same page, `www/index.html`. The invitation (`www/script.js`) finishes its glitch and fade to black, then imports `www/js/arrival.js` and calls `beginTheOtherSide()`. From there:
 
-The design borrows broad atmospheric cues from 1980s supernatural adventure horror: ordinary equipment behaving strangely, an alternate landscape, a cold palette, haze, and suspense. All scene art, copy, puzzle content, and scare imagery are original. The web experience remains vanilla static files in `www/`; Capacitor supplies the native Android/iOS shell and syncs that same source directory into the native projects.
+1. The canvas Title_Sequence plays while the Arrival_Music starts. It resolves the NOCTURNE NIGHT title after 25 seconds and holds it indefinitely, with the message and Go deeper underneath.
+2. Go deeper plays the invitation's glitch and strongest shake over the title, turns it over, and starts the Underside.
+3. The Underside is a scroll-driven descent through nine Beats and six Locks under a 10-minute Party_Clock. It ends either in an escape to the Outside_Page or, at 3:00 AM, in the time-out finale.
+
+`www/escape.html` is a separate, older entry point. It plays the title video and continues to `./index.html?descend`, which starts the Other_Side directly.
 
 ### Design Decisions
 
-- **Static web stack:** HTML, CSS, plain JavaScript ES modules, browser APIs, and the project’s single declared GSAP source, all editable under `www/`. Capacitor 8 is the native wrapper, not a web UI framework or bundler.
-- **Pure game rules:** Escape reducer, timer, clue tracking, demand validation, and gate eligibility are independent of the DOM.
-- **One scene, one page:** `escape.html` owns the room. State changes replace scene panels and overlays without a framework router.
-- **Seven minutes:** The timer starts at exactly 420 seconds when `playing` begins. It uses an elapsed-time source rather than relying only on the number of interval callbacks.
-- **Fair demands:** Each demand becomes available when its supporting clue is found. The clue tells the visitor the exact operation and answer; the Demon’s voice adds tone without withholding necessary information.
-- **Scare with a safe fallback:** The jumpscare is an abstract silhouette snap-in with a short transform and opacity timeline. It avoids strobing, does not autoplay sound, and becomes a static result under reduced motion.
-- **Local-only data:** Signup details pass through the sessionStorage key documented by the haunted-page spec. Puzzle state lives only in memory.
-
-### Handoff Arrival Slice
-
-`escape.html` is the configured destination for the third valid signup submission. It presents a responsive, text-led arrival panel with an original signal-lost message and the cold, shadowed ravine atmosphere. Its heading uses an original outlined signal-red treatment and, when motion is allowed, scales down from beyond its resting size with a soft blur through the shared GSAP timeline module. The incoming landing transition uses sparse pixel-tear blocks over scanline bands before fading to black. It does not read personal data, start a timer, offer puzzle controls, or include a jumpscare. The separate game tasks remain the implementation plan for those features.
+- **One page, no navigation.** The other side shares the page with the invitation, so the music, session, and state carry over. `beginTheOtherSide()` hides the invitation (`body.is-other-side`), shows `#other-side`, and clears leftover transforms and filters on `<html>` and `<body>`, because a transform there would trap every fixed full-screen layer.
+- **Canvas title on the wall clock.** The Title_Sequence derives every frame from `performance.now() - startTime`. Browsers stop drawing hidden pages, so on return the picture jumps to wherever the music is. A timer, not a frame, fires the settle and skip jumps so they also happen while hidden.
+- **Pure rules, thin wiring.** Title timing and camera maths live in `www/js/logic/title-sequence.js`; Underside rules (beats, dread, clocks, gates, scroll limits, flash and scare limits, hold progress) live in `www/js/logic/underside.js`. Both are testable in Node.
+- **Shared motion for crossings.** Go deeper reuses `glitch()` and `shake(3)` from `www/js/anim/timelines.js`, aimed at the title element through `glitchTarget` and `shakeTarget`.
+- **2D canvas first, 3D where it counts.** Most set-pieces are 2D canvas. three.js r187 (vendored) renders the portrait corridor, the CRT room, the cake stab scene with a scanned head (GLTF), and stylized low-poly gore scenes. Heavy 3D modules are imported on demand.
+- **Synthesized sound, recorded voices.** Music and effects are synthesized live with Web Audio and follow Dread. Voice lines are local MP3 files decoded and processed through Web Audio, with speech synthesis as a fallback.
+- **Safety in code.** Every flash and jumpscare goes through `createFlashLimiter` and `createScareGate`. Gentle_Mode is a single flag that removes jumpscares, the hammer, gore, and flashes, and adds time.
 
 ## Architecture
 
-### Layers
+### Modules
 
 ```mermaid
 flowchart TB
-  PAGE[escape.html + escape.css] --> ENTRY[js/escape/main.js]
-  ENTRY --> UI[DOM controllers: scene, panel, tracker, timer]
-  ENTRY --> LOGIC[Pure logic modules]
-  ENTRY --> ANIM[GSAP timeline factories]
-  LOGIC --> STATE[escape-state.js]
-  LOGIC --> TIMER[timer.js]
-  LOGIC --> PUZZLES[puzzles.js]
-  UI --> CONTENT[escape-content.js]
-  ANIM --> GSAP[Declared local GSAP source]
-  ENTRY --> STORAGE[Session signup reader]
+  SCRIPT[www/script.js invitation] -- import on crossing --> ARRIVAL[www/js/arrival.js]
+  ESCAPE[www/escape.html video] -- ./index.html?descend --> ARRIVAL
+  ARRIVAL --> TITLE[js/title-sequence.js canvas]
+  TITLE --> TLOGIC[js/logic/title-sequence.js]
+  ARRIVAL --> TL[js/anim/timelines.js glitch + shake]
+  ARRIVAL --> AUDIO_EL[audio element + sound toggle]
+  ARRIVAL --> MAIN[js/underside/main.js createUnderside]
+  MAIN --> ULOGIC[js/logic/underside.js]
+  MAIN --> SCENES[gallery-hall, crt-room, doll, devil, tapes, creatures, errors]
+  MAIN --> THREE3D[stab-scene, massacre via three.js]
+  MAIN --> OVER[overlays.js heartbeat, blood, cracks]
+  MAIN --> SOUND[audio.js Web Audio, voice.js speech]
+  MAIN --> SPLINE[spline-layer.js optional]
 ```
 
 ### Project Layout
 
 ```text
-
-  escape.html
-  escape.css
+www/
+  index.html            invitation, #other-side (title sequence, Underside, Outside_Page), sound toggle, audio
+  escape.html           standalone title video that continues to ./index.html?descend
+  style.css             title sequence and sound toggle styles
+  underside.css         Underside styles, Go deeper turn-over, Outside_Page
+  audio/kiroween-audio.mp3
+  videos/title-sequence.webm, title-sequence.mp4
+  assets/underside/     found/ (public domain), generated/ (team), models/ (head.glb), voice/ (14 MP3s)
+  vendor/three/         three.module.js, three.core.js, addons (GLTFLoader, BufferGeometryUtils, SkeletonUtils)
   js/
-    escape/
-      main.js
-      content.js
-      config.js
-      storage.js
-      logic/
-        state.js
-        timer.js
-        puzzles.js
-      ui/
-        scene.js
-        panel.js
-        tracker.js
-        controls.js
-      anim/
-        timelines.js
+    arrival.js          beginTheOtherSide(), title sequence wiring, music and toggle, Go deeper
+    title-sequence.js   createTitleSequence(): canvas drawing, clock, skip
+    config.js           TITLE_*, SPLINE_*, UNDERSIDE settings
+    content.js          underside copy
+    logic/
+      title-sequence.js schedule, camera, intensity, skip maths
+      underside.js      beats, dread, clocks, gates, limits
+    anim/timelines.js   shared glitch and shake
+    underside/
+      main.js           createUnderside(): beats, locks, clock, endings, input
+      gallery-hall.js   3D portrait corridor (hall)
+      crt-room.js       3D CRT living room (tape)
+      tapes.js          Smile Tapes played on the TV
+      doll.js           porcelain doll and music box (nursery)
+      devil.js          the host (devil)
+      creatures.js      2D set-pieces: hammer, arm offer, hands on glass, claw, rain, flood, faces
+      stab-scene.js     3D cake stab with the scanned head
+      massacre.js       3D low-poly gore scenes
+      overlays.js       heartbeat corners, blood, cracks
+      errors.js         old-OS error windows
+      audio.js          synthesized music and effects, voice clip playback
+      voice.js          speech synthesis fallback
+      spline-layer.js   optional Spline scenes
+tests/underside.test.js
 ```
-
-`main.js` wires page events and effects. `logic/` contains pure functions and has no browser or GSAP dependency. `ui/` owns DOM updates and input handling. `anim/timelines.js` is the only module that constructs GSAP timelines. Content, puzzle answers, timing, and destination locations are constants rather than embedded in event handlers.
 
 ## Components and Interfaces
 
-| Component | Responsibility | Public interface |
-|---|---|---|
-| `main.js` | Initialize the page, connect state, timer, UI, and animation events | `initializeEscape()` |
-| `logic/state.js` | Apply legal escape-state transitions | `initialEscapeState`, `reduceEscapeState(state, event)` |
-| `logic/timer.js` | Derive remaining time from monotonic elapsed time | `createTimer(startedAt)`, `readTimer(timer, now)`, `formatTime(seconds)` |
-| `logic/puzzles.js` | Track unique clues and validate the three demands | `discoverClue(progress, clueId)`, `submitDemand(progress, demandId, answer)`, `isGateUnlocked(progress)` |
-| `ui/scene.js` | Render the scene and open or close object panels | `bindScene({ onClue, onDemand, onReturn })` |
-| `ui/tracker.js` | Render clue and demand totals and accessible announcements | `renderProgress(progress)`, `announce(message)` |
-| `ui/controls.js` | Bind puzzle inputs and report submitted answers | `bindPuzzleControls(handlers)` |
-| `anim/timelines.js` | Create GSAP transitions and provide reduced-motion/no-GSAP fallbacks | `createEscapeTimelines(gsap, options)` |
-| `storage.js` | Read the optional signup record without exposing storage failures | `readSignup(storage)` |
+### `js/arrival.js`
 
-Modules communicate through plain objects and callbacks. Pure logic modules do not import DOM APIs, GSAP, or storage. `main.js` is the composition root and is responsible for checking state and time before dispatching terminal events. UI modules receive callbacks instead of importing game state directly.
+| Function | Responsibility |
+|---|---|
+| `beginTheOtherSide()` | Runs once: clears transforms, hides the invitation, shows the title sequence, starts the title and the music |
+| `startTitle()` | Creates the Title_Sequence (`still` under reduced motion), wires Skip intro, shows the Finale on settle |
+| `showFinale()` | Unhides the message and Go deeper, fades Skip intro out, moves focus to Go deeper if Skip had it |
+| `startSound()` | Plays the Arrival_Music, falls back to muted autoplay plus unmute on first interaction, keeps the toggle state |
+| `startDescent()` | Fades the music and hides the toggle; runs glitch + `shake(3)` on the title, then the CSS turn-over, then `createUnderside({ gentle: reducedMotion }).start()` |
 
-The puzzle module accepts only known clue and demand identifiers. It returns updated immutable progress values so callers cannot mutate the prior state accidentally. The animation module accepts DOM targets from the composition root and exposes methods for entry, panel reveal, demand feedback, timeout scare, success, and return transitions.
+`?descend` in the URL calls `beginTheOtherSide()` on load.
+
+### `js/title-sequence.js`
+
+`createTitleSequence({ canvas, bloom, haze, grain, frame }, { onSettle, still })` returns `{ start, skip, destroy }`.
+
+- `start()` starts the clock immediately (together with the music), loads the title font, measures the letters, publishes `--title-bottom` for the Finale's position, and starts drawing. A timer calls `onSettle` when the title resolves.
+- `skip()` records the press time; frames fade out over `skipFadeOut`, a timer jumps the clock to `skipLead` before the end, and frames fade back in over `skipFadeIn`.
+- Drawing: each letter is layered strokes in one red hue (outer glow, inner glow, tube, highlight) with fake depth of field; a quarter-size copy feeds the CSS bloom; grain is one cached tile moved by CSS.
+
+### `js/logic/title-sequence.js`
+
+`buildSchedule(shots, timing)`, `shotAt`, `masterAlpha`, `isSettled`, `letterMotion`, `drift`, `intensity`, `shotCamera`, `closeUpScale`, `pullCamera`, `skipDip`, `skipTarget`, plus the easing helpers.
+
+### `js/underside/main.js`
+
+`createUnderside({ gentle })` returns `{ start }`. It owns the scroll track, the beats and locks, the Party_Clock, the overlays, the endings, and input (pointer, wheel, touch, keyboard, visibility). `GATE_AT` places each Lock: `host` in hall at 93%, `vcr` in tape at 60%, `music` in nursery at 45%, `doors` in rooms at 90%, `leave` in leave at 40%, `rsvp` in devil at 50%.
+
+### `js/logic/underside.js`
+
+| Export | Rule |
+|---|---|
+| `BEATS`, `beatAt(progress)` | Nine beats with end positions: hall 0.10, tape 0.20, nursery 0.32, eyes 0.38, rooms 0.52, leave 0.60, hallway 0.78, devil 0.90, exit 1.00 |
+| `dreadAt(progress)` | Bounded 0..1, non-decreasing |
+| `limitScroll(...)` | Capped view speed; the scroll is pulled back instead of skipping |
+| `applyGates(targetY, gates)` | A target position never passes an unsolved gate |
+| `createFlashLimiter({ max = 3, windowMs = 1000, gentle })` | At most 3 flashes per second; none in gentle mode |
+| `createScareGate({ maxPerRun = 2, minGapMs = 45000, gentle })` | At most 2 jumpscares per run, 45 s apart; none in gentle mode |
+| `createBacktrackDetector(threshold)` | Notices scrolling back past a threshold |
+| `holdProgress(current, dt, holding, { fillMs = 2600, drainMs = 5200 })` | Escape hold meter within 0..1 |
+| `countdown`, `partyClock`, `minutesTowardThree`, `minutesLabel`, `clockLabel`, `timecode` | Clock maths and formats |
+| `figureStep`, `tapeAt`, `errorCount`, `roomLabel`, `guestName` | Set-piece pacing and the visitor's display name |
 
 ## Data Models
 
-The following shapes define the data exchanged between modules. Implementations may use JavaScript objects and `Set` internally, but serialized and callback-facing values use plain data.
-
-```ts
-type EscapePhase =
-  | 'loading'
-  | 'transitioning_in'
-  | 'playing'
-  | 'failure_scaring'
-  | 'failure'
-  | 'success'
-  | 'transitioning_out'
-  | 'returned';
-
-type EscapeState = {
-  phase: EscapePhase;
-  attempt: number;
-};
-
-type PuzzleProgress = {
-  discoveredClues: string[];
-  completedDemands: string[];
-};
-
-type TimerState = {
-  startedAt: number | null;
-  remainingSeconds: number;
-  isRunning: boolean;
-  isExpired: boolean;
-};
-
-type SignupRecord = {
-  name: string;
-  email: string;
-};
-```
-
-The four stable clue IDs are `radio-log`, `breaker-note`, `cassette-sleeve`, and `wall-marks`. The three demand IDs are `radio-frequency`, `breaker-sequence`, and `gate-word`. A puzzle progress value starts with two empty arrays. Discovering a clue or completing a demand returns a new value with the identifier appended at most once. Gate eligibility is derived from exactly four unique clues and three unique demands; it is not stored as a separate mutable flag.
-
-Signup data is optional and read from `nocturne-night:signup` in sessionStorage. Invalid, missing, or inaccessible data becomes `null` and the page uses a generic greeting. Signup records and in-progress puzzle state are not persisted by the escape page.
-
-The timer begins with 420 seconds and a null start timestamp. Entering `playing` records a monotonic timestamp. Each read derives remaining seconds from that timestamp; expiry is terminal for the attempt. Retry creates a new attempt with empty puzzle progress and a new timer.
-
-### Escape State Machine
-
-```mermaid
-stateDiagram-v2
-  [*] --> loading
-  loading --> transitioning_in: ASSETS_READY
-  transitioning_in --> playing: INTRO_COMPLETE
-  playing --> failure_scaring: TIMER_EXPIRED
-  failure_scaring --> failure: SCARE_COMPLETE or SKIP_SCARE
-  playing --> success: GATE_ACTIVATED and eligible
-  success --> transitioning_out: SUCCESS_COMPLETE
-  transitioning_out --> returned: RETURN_COMPLETE
-  failure --> loading: RETRY
-  playing --> returned: RETURN_SELECTED
-  failure --> returned: RETURN_SELECTED
-  success --> returned: RETURN_SELECTED
-```
-
-The reducer ignores events that do not match the current state. The timer emits `TIMER_EXPIRED` once. At the zero boundary, the controller processes timer expiration before any gate click in the same frame; a gate activation is eligible only when remaining time is greater than zero and all puzzle conditions are complete.
-
-### Game Data
+### Title configuration (`js/config.js`)
 
 ```js
-const GAME_CONFIG = {
-  initialSeconds: 420,
-  clueCount: 4,
-  demandCount: 3,
-  signupStorageKey: 'nocturne-night:signup',
-  ambientMaximum: 12,
-  mobileAmbientMaximum: 6,
-  returnDestination: './index.html#signup'
-};
+TITLE_FONT = '"Playfair Display", Georgia, serif';
+TITLE_LINES = [{ text: 'NOCTURNE', size: 200, track: 8 }, { text: 'NIGHT', size: 170, track: 18 }];
+TITLE_SHOTS = five close-ups with d = 3600, 1800, 1800, 2000, 1800 ms;
+TITLE_PULL_FROM = { i: 4, fx: 0.5, fy: 0.4, z: 5 };
+TITLE_TIMING = { blackout: 2000, fadeIn: 1600, pull: 12000, skipFadeOut: 900, skipFadeIn: 1500, skipLead: 6000 };
 ```
 
-The constants in implementation may use module exports and must remain the single source of truth for timer limits and destinations.
+The shots start at 2.0, 5.6, 7.4, 9.2, and 11.2 seconds; the pull-back runs from 13 to 25 seconds; the title then holds.
 
-| Clue ID | Location | Clue shown | Enables demand |
-|---|---|---|---|
-| `radio-log` | Shortwave radio | “The voice repeats 88.3. Find me between stations.” | Tune radio to 88.3 MHz |
-| `breaker-note` | Notice board | “Two before one. One before three. Let the numbered lights return.” | Activate breakers 2, 1, then 3 |
-| `cassette-sleeve` | Cassette player | “The word is RETURN. Say it at the gate.” | Enter RETURN on the gate keypad |
-| `wall-marks` | Wall markings | Reveals a plain-language reminder that all four traces must be found before the gate will answer; adds lore without another answer puzzle. | Gate eligibility and clue completion context |
+### Underside configuration (`UNDERSIDE` in `js/config.js`)
 
-There are three demands and four clues. `wall-marks` is required for the clue total but does not add another answer puzzle. The gate becomes eligible only when all clues and all demands are complete.
+| Key | Value | Use |
+|---|---|---|
+| `timeLimitMs` | 600000 | 10-minute Party_Clock (2:50 to 3:00 AM) |
+| `gentleExtraMs` | 120000 | Extra time in Gentle_Mode |
+| `maxScreensPerSecond` | 1.15 | Scroll speed cap |
+| `scareMs` | 850 | Jumpscare length |
+| `afterEscapeMs` | 6500 | Delay before the Outside_Page scare |
+| `escapedKey` | `nocturne-night:escaped` | Set after an escape |
+| `voiceDir` | `./assets/underside/voice/` | Voice clips |
+| `scares`, `foundImages`, `broadcastFootage`, `familyImage` | image paths | Set-piece imagery (see `ASSETS.md`) |
 
-Puzzle input behavior:
+`SPLINE_SCENES` has three optional slots (`watcher`, `door`, `figure`); all are empty, so the Spline runtime is not loaded.
 
-- **Radio:** A labeled numeric input or stepper accepts one decimal value. Submit enables the demand only after its clue has been discovered. Correct value is `88.3`.
-- **Breakers:** Three labeled buttons activate a sequence. The sequence resets on an incorrect next breaker and announces the hint to review the notice-board clue. Correct sequence is `2, 1, 3`.
-- **Gate keypad:** A labeled text input accepts the case-insensitive word `RETURN`. The demand can only complete after its clue is discovered.
-- **Gate:** A native button always exposes its current status. Before eligibility, activation explains the remaining clues or demands without allowing escape; once eligible, it enters success.
+### Session data
 
-### Timer Model
+- `nocturne-night:signup`: `{ name, email }` from the invitation; read for the visitor's name and the RSVP lock.
+- `nocturne-night:escaped`: `'1'` after an escape or the time-out ending.
 
-Pure timer state:
+## Flows
 
-```ts
-{
-  remainingSeconds: 420,
-  elapsedMilliseconds: 0,
-  isRunning: false,
-  isExpired: false
-}
+### Go deeper
+
+```mermaid
+sequenceDiagram
+  participant V as Visitor
+  participant A as arrival.js
+  participant T as timelines.js
+  participant U as Underside
+  V->>A: Go deeper
+  A->>A: fade music out, hide sound toggle
+  par
+    A->>T: glitch() on the title
+  and
+    A->>T: shake(3) on the title
+  end
+  A->>A: add is-descending (1.1 s turn-over)
+  A->>U: destroy title, start Underside (gentle = reduced motion)
 ```
 
-`start` records a monotonic start point. Each update computes elapsed whole seconds and derives `remainingSeconds = max(0, 420 - floor(elapsed / 1000))`. This avoids accumulating interval drift. The controller updates the visible text at most once per second and announces only at 60 seconds, 10 seconds, zero, and terminal state transitions. Retry creates a new timer state at 420.
+### Underside endings
 
-### Scene and Visual Direction
+- **Escape:** hold to escape fills the meter; the house rotates upright (1.6 s), the Outside_Page appears with focus on its heading, the escaped flag is set, and after 6.5 seconds one final Jumpscare shows (not in Gentle_Mode).
+- **Time-out:** at zero, "The party has ended." is shown and spoken. Outside Gentle_Mode the full finale plays and ends on a forced Jumpscare. In Gentle_Mode only the text plays, then the visitor returns to the invitation.
 
-- **Palette:** near-black, charcoal blue, cold slate, and pale fog for the base. Signal orange and pale ice are limited accents. Error/failure text uses readable warm ivory rather than large red areas.
-- **Typography:** narrow, high-legibility sans serif for controls and timer; restrained display face for short scene headings. Body and puzzle text remain clear and at least 16 px.
-- **Composition:** full-height control header for timer and progress, an illustrated trench and relay-station field, object buttons positioned as labeled hotspots, and a persistent readable message panel. On small screens, the scene becomes a vertical stack of large object controls.
-- **Atmosphere:** fog sheets and drifting spores sit behind controls, with subtle parallax. Vignette and grain are static overlays. Effects never reduce foreground contrast.
-- **The Demon:** messages arrive as brief text in the scene panel, with a restrained border or opacity change. Do not represent it with a copied character silhouette or recognizable franchise creature.
-- **Failure:** a dark pause, abstract silhouette growing into view, then a stable failure panel. The scare is brief and skippable; the “You failed” heading and both actions are readable immediately after it.
-- **Success:** gate illumination and a reverse dimensional dissolve reveal the normal-page return action.
+## Accessibility and Safety
 
-### Animation System
-
-All animation factories live in `js/escape/anim/timelines.js` and accept `prefersReducedMotion`.
-
-| Timeline | Normal limit | Reduced motion |
-|---|---:|---:|
-| Forward Handoff | 2000 ms | 300 ms |
-| Object/panel reveal | 600 ms | 250 ms |
-| Ambient loops | repeating, paused when hidden | disabled |
-| Demand feedback | 500 ms | 250 ms |
-| Jumpscare | 1800 ms | static result, at most 300 ms |
-| Success reveal | 1200 ms | 300 ms |
-| Reverse Handoff | 1800 ms | 300 ms |
-
-Use transform and opacity for movement. Filter may be used for a brief static-to-desaturated transition. No fast flashes, full-screen red frames, camera shake loops, or continuously animated text. A skip action cancels the active timeline and dispatches the matching completion event exactly once.
-
-### Accessibility
-
-- Native buttons, inputs, labels, headings, and landmarks provide keyboard and screen-reader semantics.
-- Each scene object has a visible label and at least a 44 px target. Hotspot coordinates are decorative placement only; a parallel object list provides reliable access on touch and keyboard layouts.
-- The Clue_Tracker is a readable “Clues 0 of 4; demands 0 of 3” status. Updates announce each discovery or completion, not every visual animation frame.
-- The timer is visible continuously but not an assertive live region. Announce only threshold and terminal changes.
-- A skip-scare control is present before the jumpscare begins; a persistent return action is available in active and terminal states.
-- Reduced-motion mode removes continuous fog motion, parallax, shake, and the jumpscare animation while retaining a brief static transition and all puzzle feedback.
-- Focus moves into an opened object panel and returns to the activating object when dismissed. Focus moves to the failure/success heading when a terminal panel appears.
-- All text and controls maintain at least 4.5:1 contrast. No state is conveyed by color alone.
+- The Title_Sequence canvas has `role="img"` and a text label; the Finale message and Go deeper are real text and a native button.
+- Skip intro, Go deeper, the sound toggle, the lock controls, and the escape button are native buttons with visible focus; the wind and escape holds also work with the keyboard.
+- Reduced motion: the title shows its final frame, Go deeper fades instead of glitching, and the Underside runs in Gentle_Mode.
+- Flash and scare limits apply to every effect; blood stays dark red; text sits above all overlays.
+- Live regions announce the Underside's key moments, such as the party ending.
 
 ## Error Handling
 
 | Situation | Handling |
 |---|---|
-| GSAP unavailable | Add a no-animation class; keep the scene, timer, puzzles, retry, and return usable with immediate state changes. |
-| Session storage unavailable or signup absent | Use a generic greeting; continue the game. |
-| Invalid puzzle answer | Keep progress, announce the unmet demand, and allow another attempt. |
-| Duplicate clue click | Keep clue count unchanged and reopen the known clue content. |
-| Duplicate or illegal state event | Reducer returns the current state; terminal sequences cannot repeat. |
-| Browser reload during play | Start a fresh attempt at 420 seconds with no puzzle progress. |
-| Return destination fails | Keep a stable success/failure panel and expose an ordinary anchor to the configured destination. |
-| Timer callback delayed by a background tab | Recompute from monotonic elapsed time on visibility return; expire immediately if the deadline passed. |
-
-## Correctness Properties
-
-**Property 1: Timer is bounded and monotonic.** For every sequence of elapsed-time updates and terminal events, remaining seconds stay within 0–420, equal the configured duration less elapsed whole seconds, and never increase during an attempt. Validates Requirements 6.1, 6.5, 6.7, and 14.1.
-
-**Property 2: State transitions are legal.** For every state/event pair, the reducer returns the documented next state for legal events and the same state for illegal events. Validates Requirements 3.7 and 14.2.
-
-**Property 3: Clues count once.** For any generated sequence of clue activations, discovered count equals the number of unique required clue IDs and remains in 0–4. Validates Requirements 5.2 and 14.3.
-
-**Property 4: Demands require exact answers and clues.** For any ordering of clue discovery and answer submissions, each demand completes only if its clue is discovered and its answer is exact; repeated correct submissions do not increase count. Validates Requirements 5.3–5.5 and 14.4.
-
-**Property 5: Gate eligibility is exact.** Gate is unlocked if and only if all four clues and all three demands are complete. Validates Requirements 5.6–5.7 and 14.4.
-
-**Property 6: Timeout and success are mutually exclusive.** For all permutations of timer-expired and gate-activated events at zero, at most one terminal route is entered and the state cannot be `success` at zero seconds. Validates Requirements 6.5 and 14.5.
+| Audible autoplay blocked | Play muted; unmute on the first interaction outside the toggle |
+| Audio file or Web Audio fails | Continue silently |
+| Voice clip fails | Speak the line with speech synthesis |
+| GSAP unavailable | CSS glitch and shake, then continue; the Underside's upright turn waits instead of animating |
+| Title font fails to load | Draw with the Georgia fallback |
+| Page hidden during the title | The clock keeps running; the settle and skip timers still fire |
+| Signup record missing | Use a generic name |
+| Spline scene URL empty | Use the built-in canvas creature |
 
 ## Testing Strategy
 
-- Use the project’s JavaScript test runner and `fast-check` for pure logic properties, with at least 100 runs per property.
-- Use in-memory timer clocks and storage stubs; pure tests must not require a browser DOM or GSAP.
-- Add unit cases for all puzzle answers, wrong answers, duplicate clue activations, exact 420-to-zero behavior, background-tab catch-up, retry reset, and timeout/gate race handling.
-- Browser checks cover keyboard-only play, touch target sizing, 320 px layout, contrast, skip behavior, reduced motion, focus restoration, and timeline fallback when GSAP is unavailable.
-- Performance checks cover asset loading, maximum ambient counts, and scene responsiveness with all effects active.
+- `npm test` runs `tests/underside.test.js` with Node's built-in test runner: 19 tests of the Underside rules (dread, beat order, flash limit, gentle mode, scare cap and spacing, figure steps, backtracking, hold range, guest names, clock formats, card length, tape order, clock arrival, error windows, scroll cap, countdown, gates).
+- `tests/landing.test.js` covers the Title_Sequence schedule: cut times, the 25 s settle, the fade-in that never fades out, and the Skip intro dip and target.
+- `?time=SECONDS` and `?debug` (`window.__underside`) support manual and automated browser walkthroughs.
+- Browser checks: the title in a hidden tab, Skip intro timing, reduced motion, keyboard-only play, and the escape and time-out endings.
 
-### Requirements Traceability
+## Requirements Traceability
 
 | Requirement | Main modules |
 |---|---|
-| 1 Technology | `escape.html`, `escape.css`, `js/escape/*`, README |
-| 2 Theme and opening | `content.js`, `escape.css`, `scene.js` |
-| 3 State and handoff | `state.js`, `main.js`, `timelines.js`, `config.js` |
-| 4 Scene objects | `escape.html`, `scene.js`, `panel.js` |
-| 5 Clues and demands | `puzzles.js`, `content.js`, `tracker.js`, `controls.js` |
-| 6 Timer | `timer.js`, `main.js`, `tracker.js` |
-| 7 Failure and jumpscare | `timelines.js`, `main.js`, `escape.css` |
-| 8 Success | `state.js`, `timelines.js`, `main.js` |
-| 9 Responsive | `escape.css`, `controls.js` |
-| 10 Accessibility | `escape.html`, `escape.css`, `panel.js`, `tracker.js` |
-| 11 Performance and resilience | `main.js`, `timelines.js`, `config.js` |
-| 12 Privacy | `storage.js`, `main.js` |
-| 13–14 Kiro and PBT | spec docs, steering, tests |
-
-<<<<<<< HEAD
-## Current Delivery Boundary
-
-The landing-page handoff opens `www/escape.html` with a full-viewport, silent 30.8-second title video. `www/videos/title-sequence.webm` is the preferred compact source and `www/videos/title-sequence.mp4` is the compatibility fallback. The video uses `autoplay muted playsinline`, scales with `object-fit: contain`, and has a visible Skip intro control. On `ended`, skip, media error, or rejected `play()` (including autoplay restrictions), the page continues to `./index.html?descend`, where the existing arrival scene is shown. With reduced motion, video playback is skipped and arrival opens immediately. The existing arrival title sequence runs there as before. The separate Stranger Things music audio continues its existing autoplay attempt and sound toggle behavior. This page does not initialize the Trench of Horror scene, timer, clue tracker, Demon interactions, or failure jumpscare.
-=======
->>>>>>> f0244bd470db10f735d1188681264ee56e46ef39
+| 1 Technology | `index.html`, `vendor/three/`, `spline-layer.js`, `js/logic/` |
+| 2 Title sequence | `title-sequence.js`, `logic/title-sequence.js`, `arrival.js`, `style.css` |
+| 3 Music and toggle | `arrival.js`, `index.html`, `style.css` |
+| 4 Go deeper | `arrival.js`, `anim/timelines.js`, `underside.css` |
+| 5 Title video page | `escape.html`, `arrival.js` |
+| 6 Structure and movement | `underside/main.js`, `logic/underside.js` |
+| 7 Locks | `underside/main.js`, `gallery-hall.js`, `crt-room.js`, `doll.js`, `devil.js`, `creatures.js` |
+| 8 Party clock and time-out | `underside/main.js`, `logic/underside.js`, `config.js` |
+| 9 Escape and Outside_Page | `underside/main.js`, `index.html`, `underside.css` |
+| 10 Safety | `logic/underside.js`, `underside/main.js` |
+| 11 Overlays and sound | `overlays.js`, `audio.js`, `voice.js` |
+| 12 Content and assets | `content.js`, `assets/underside/`, `ASSETS.md` |
+| 13 Performance | `underside/main.js`, `overlays.js`, `title-sequence.js` |
+| 14 Privacy | `storage.js`, `underside/main.js` |
+| 15 Testing | `tests/underside.test.js` |
+| 16 Kiro | spec documents, steering |

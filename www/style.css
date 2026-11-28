@@ -12,7 +12,7 @@
   --lilac: #c6a8dc;
   --sage: #9aaf91;
   --serif: 'Playfair Display', Georgia, serif;
-  --sans: 'DM Sans', Arial, sans-serif;
+  --sans: 'Outfit', Arial, sans-serif;
   --space: clamp(1.25rem, 5vw, 5.5rem);
   --ease: cubic-bezier(.22, .8, .22, 1);
   --haunt: 0;
@@ -1147,13 +1147,6 @@ h1, h2, h3, p {
   background: rgba(239, 139, 80, .2);
 }
 
-.skip-glitch {
-  position: fixed;
-  z-index: 12;
-  bottom: 1.5rem;
-  right: 1.5rem;
-}
-
 .button--quiet {
   background: rgba(16, 13, 24, .88);
   color: var(--paper);
@@ -1975,6 +1968,11 @@ body.is-crossing .handoff-overlay,
 .title-sequence__finale.is-shown .title-sequence__message,
 .title-sequence__finale.is-shown .title-sequence__deeper {
   opacity: 1;
+  margin-top: 1rem;
+}
+
+.title-sequence__finale.is-shown .title-sequence__deeper {
+  margin-top: 1rem;
 }
 
 .title-sequence__skip {
